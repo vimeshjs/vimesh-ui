@@ -1,0 +1,24 @@
+{
+  "name": "vimesh-ui",
+  "version": "0.1.0",
+  "repository": "https://github.com/vimeshjs/vimesh-ui.git",
+  "author": "Jacky ZHANG <xinjie.zhang@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "build": "node scripts/build.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@alpinejs/collapse": "^3.10.3",
+    "@alpinejs/focus": "^3.10.3",
+    "@alpinejs/intersect": "^3.10.3",
+    "@alpinejs/mask": "^3.10.3",
+    "@alpinejs/persist": "^3.10.3",
+    "@vimesh/style": "^0.13.2",
+    "alpinejs": "^3.10.3",
+    "lodash": "^4.17.21",
+    "rimraf": "^3.0.2",
+    "uglify-js": "^3.15.1"
+  }
+}

@@ -1,0 +1,7 @@
+*.log
+.DS_Store
+examples/
+ref/
+node_modules/
+yarn.lock
+doc
