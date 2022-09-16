@@ -37,9 +37,14 @@ ${elScript.innerHTML}
                 _.each(el.attributes, attr => {
                     if (curDirective === attr.name) return
                     try {
-                        this.setAttribute(attr.name, attr.value)
+                        let name = attr.name
+                        if (name.startsWith('@'))
+                            name = `${prefixed('on')}:${name.substring(1)}`
+                        else if (name.startsWith(':'))
+                            name = `${prefixed('bind')}:${name.substring(1)}`
+                        this.setAttribute(name, attr.value)
                     } catch (ex) {
-                        console.warn(`Fails to set attribute ${attr.name}=${attr.value} in ${this.tagName}`)
+                        console.warn(`Fails to set attribute ${attr.name}=${attr.value} in ${this.tagName.toLowerCase()}`)
                     }
                 })
                 this.innerHTML = el.innerHTML

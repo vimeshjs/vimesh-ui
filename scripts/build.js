@@ -16,17 +16,11 @@ const processors = {
 
 let files = ['core.js', 'x-component.js', 'x-import.js']
 
-/*
-_.each(fs.readdirSync(dirSrc), f => {
-    if (fs.lstatSync(`${dirSrc}/${f}`).isDirectory()) return
-    if (files.indexOf(f) == -1) files.push(f)
-    codeMap[f] = fs.readFileSync(`${dirSrc}/${f}`).toString()
-    fs.writeFileSync(`${dirDist}/${f.substring(0, f.length - 3)}.min.js`, `// Vimesh Style v${version}\r\n` + UglifyJS.minify(codeMap[f]).code)
-})
-*/
-let code = _.map(files, f => fs.readFileSync(`${dirSrc}/${f}`)).join(';')
+let code = _.map([..._.map(files, f => `${dirSrc}/${f}`), `${dirDepends}/@alpinejs/focus/dist/cdn.js`], f => fs.readFileSync(f)).join(';')
+
 _.each(processors, (func, type) => {
     let result = `// Vimesh UI v${version}\r\n` + func(code)
     fs.writeFileSync(`${dirDist}/vui${type}.js`, result)
 })
 
+console.log(`Version ${version} has been built!`)
