@@ -35,7 +35,7 @@ $vui.import = (comps) => {
                     return new Promise((resolve) => {
                         const process = (i) => {
                             if (i < all.length) {
-                                elChild = all[i]
+                                const elChild = all[i]
                                 elChild.remove()
                                 if (elChild.tagName === 'SCRIPT') {
                                     const elExecute = document.createElement("script")

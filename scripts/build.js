@@ -30,17 +30,3 @@ _.each(processors, (func, type) => {
     fs.writeFileSync(`${dirDist}/vui${type}.js`, result)
 })
 
-
-code = `${code}\r\n` +
-    _.map([
-        '@vimesh/style/dist/vs.dev.js',
-        '@alpinejs/focus/dist/cdn.js',
-        '@alpinejs/collapse/dist/cdn.js',
-        '@alpinejs/persist/dist/cdn.js',
-        '@alpinejs/mask/dist/cdn.js',
-        '@alpinejs/intersect/dist/cdn.js',
-        'alpinejs/dist/cdn.js'], f => fs.readFileSync(`${dirDepends}/${f}`)).join(';')
-_.each(processors, (func, type) => {
-    let result = `// Vimesh UI v${version}\r\n` + func(code)
-    fs.writeFileSync(`${dirDist}/vui.bundled${type}.js`, result)
-})
