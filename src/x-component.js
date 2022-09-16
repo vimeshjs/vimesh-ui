@@ -1,9 +1,9 @@
 
+if (!$vui.setups) $vui.setups = {}
+if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, $data } = Alpine
-    $vui.setups = {}
-    $vui.components = {}
+    const { directive, bind, prefixed } = Alpine
     directive('component', (el, { expression }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') warn('x-ui can only be used on a <template> tag', el)
         const compName = expression
@@ -21,24 +21,40 @@ ${elScript.innerHTML}
 `
             document.body.append(elExecute)
         })
-        _.each(el.content.querySelectorAll("slot"), elSlot => {
-            const name = elSlot.getAttribute('name') || ''
-
-        })
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
+                const slotContents = {}
+                const defaultSlotContent = []
+                _.each(this.childNodes, elChild => {
+                    if (elChild.tagName === 'TEMPLATE') {
+                        let slotName = elChild.getAttribute('slot')
+                        if (slotName) slotContents[slotName] = elChild.content.cloneNode(true).childNodes
+                    } else {
+                        defaultSlotContent.push(elChild.cloneNode(true))
+                    }
+                })
+                const curDirective = prefixed('component')
+                _.each(el.attributes, attr => {
+                    if (curDirective === attr.name) return
+                    try {
+                        this.setAttribute(attr.name, attr.value)
+                    } catch (ex) {
+                        console.warn(`Fails to set attribute ${attr.name}=${attr.value} in ${this.tagName}`)
+                    }
+                })
                 this.innerHTML = el.innerHTML
+                _.each(this.querySelectorAll("slot"), elSlot => {
+                    const name = elSlot.getAttribute('name')
+                    elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                    elSlot.remove()
+                })
                 let setup = $vui.setups[compName]
-                if (setup) {
-                    Alpine.bind(this, setup(this))
-                }
+                if (setup) bind(this, setup(this))
                 _.each(this.querySelectorAll('*[part]'), elPart => {
                     const part = elPart.getAttribute('part') || ''
                     const fullName = `${compName}${part ? `/${part}` : ''}`
                     setup = $vui.setups[fullName]
-                    if (setup) {
-                        Alpine.bind(elPart, setup(elPart))
-                    }
+                    if (setup) bind(elPart, setup(elPart))
                 })
             }
         }

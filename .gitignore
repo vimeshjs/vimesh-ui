@@ -5,3 +5,4 @@ ref/
 node_modules/
 yarn.lock
 doc
+favicon.ico

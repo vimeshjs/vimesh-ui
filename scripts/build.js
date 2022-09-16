@@ -14,7 +14,7 @@ const processors = {
     '': js => UglifyJS.minify(js).code
 }
 
-let files = ['core.js', 'x-component.js']
+let files = ['core.js', 'x-component.js', 'x-import.js']
 
 /*
 _.each(fs.readdirSync(dirSrc), f => {
