@@ -1,4 +1,4 @@
-// Vimesh UI v0.3.0
+// Vimesh UI v0.3.1
 "use strict";
 
 (function (G) {
