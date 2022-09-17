@@ -1,4 +1,3 @@
-
 if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {

@@ -1,5 +1,3 @@
-
-
 $vui.import = (comps) => {
     const _ = $vui._
     const importMap = $vui.config.importMap

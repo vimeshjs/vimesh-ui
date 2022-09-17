@@ -2,6 +2,7 @@
 
 (function (G) {
     if (G.$vui) return // Vimesh UI core is already loaded
+
     G.$vui = {
         config: {},
         ready(callback) {
@@ -54,24 +55,6 @@
                 })
             }
             return target
-        },
-        get(obj, path) {
-            if (!_.isString(path) || !path) throw `Unable to get the property "${path}" in ${obj}`
-            let parts = path.split('.')
-            for (let i = 0; i < parts.length - 1; i++) {
-                if (!obj[parts[i]]) return null
-                obj = obj[parts[i]]
-            }
-            return obj[parts[parts.length - 1]]
-        },
-        set(obj, path, val) {
-            if (!_.isString(path) || !path) throw `Unable to set the property "${path}" in ${obj}`
-            let parts = path.split('.')
-            for (let i = 0; i < parts.length - 1; i++) {
-                if (!obj[parts[i]]) obj[parts[i]] = {}
-                obj = obj[parts[i]]
-            }
-            obj[parts[parts.length - 1]] = val
         }
     }
 })(window);
