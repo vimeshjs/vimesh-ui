@@ -2,7 +2,8 @@ if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, bind, prefixed } = Alpine
+    const { directive, bind, prefixed, addRootSelector } = Alpine
+    addRootSelector(() => `[${prefixed('component')}]`)
     directive('component', (el, { expression }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') warn('x-ui can only be used on a <template> tag', el)
         const compName = expression

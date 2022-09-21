@@ -81,7 +81,8 @@ $vui.import = (comps) => {
 }
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, evaluateLater, effect } = Alpine
+    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    addRootSelector(() => `[${prefixed('import')}]`)
     directive('import', (el, { expression }, { cleanup }) => {
         if (!expression) return
         let comps = expression.trim()

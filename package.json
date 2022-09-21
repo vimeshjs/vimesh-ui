@@ -8,13 +8,18 @@
   "main": "dist/vui.js",
   "scripts": {
     "clean": "rimraf dist/*",
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.js",
+    "test": "jest test"
   },
   "dependencies": {},
   "devDependencies": {
     "@alpinejs/focus": "^3.10.3",
-    "@vimesh/style": "^0.13.2",
+    "@testing-library/dom": "^8.18.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@vimesh/style": "^0.13.5",
     "alpinejs": "^3.10.3",
+    "jest": "^29.0.3",
+    "jest-environment-jsdom": "^29.0.3",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
     "uglify-js": "^3.15.1"
