@@ -4,7 +4,7 @@
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
-        config: {},
+        config: { debug: false },
         ready(callback) {
             if (G.Alpine) {
                 callback()

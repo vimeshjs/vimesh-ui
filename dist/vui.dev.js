@@ -1,11 +1,11 @@
-// Vimesh UI v0.3.2
+// Vimesh UI v0.4.0
 "use strict";
 
 (function (G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
-        config: {},
+        config: { debug: false },
         ready(callback) {
             if (G.Alpine) {
                 callback()
@@ -62,10 +62,16 @@
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, bind, prefixed } = Alpine
-    directive('component', (el, { expression }, { cleanup }) => {
-        if (el.tagName.toLowerCase() !== 'template') warn('x-ui can only be used on a <template> tag', el)
-        const compName = expression
+    const { directive, bind, prefixed, addRootSelector, mutateDom, initTree } = Alpine
+    addRootSelector(() => `[${prefixed('component')}]`)
+    directive('component', (el, { expression, value }, { cleanup }) => {
+        if (el.tagName.toLowerCase() !== 'template') {
+            return console.warn('x-component can only be used on a <template> tag', el)
+        }
+        el._x_ignore = true
+        const namespace = value || $vui.config.namespace || 'vui'
+        const prefixMap = $vui.config.prefixMap || {}
+        const compName = `${prefixMap[namespace] || namespace}-${expression}`
         _.each(el.content.querySelectorAll("script"), elScript => {
             const part = elScript.getAttribute('part') || ''
             const fullName = `${compName}${part ? `/${part}` : ''}`
@@ -82,47 +88,62 @@ ${elScript.innerHTML}
         })
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
-                const slotContents = {}
-                const defaultSlotContent = []
-                _.each(this.childNodes, elChild => {
-                    if (elChild.tagName === 'TEMPLATE') {
-                        let slotName = elChild.getAttribute('slot')
-                        if (slotName) slotContents[slotName] = elChild.content.cloneNode(true).childNodes
-                    } else {
-                        defaultSlotContent.push(elChild.cloneNode(true))
-                    }
-                })
-                const curDirective = prefixed('component')
-                _.each(el.attributes, attr => {
-                    if (curDirective === attr.name) return
-                    try {
-                        let name = attr.name
-                        if (name.startsWith('@'))
-                            name = `${prefixed('on')}:${name.substring(1)}`
-                        else if (name.startsWith(':'))
-                            name = `${prefixed('bind')}:${name.substring(1)}`
-                        this.setAttribute(name, attr.value)
-                    } catch (ex) {
-                        console.warn(`Fails to set attribute ${attr.name}=${attr.value} in ${this.tagName.toLowerCase()}`)
-                    }
-                })
-                this.innerHTML = el.innerHTML
-                _.each(this.querySelectorAll("slot"), elSlot => {
-                    const name = elSlot.getAttribute('name')
-                    elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
-                    elSlot.remove()
-                })
-                let setup = $vui.setups[compName]
-                if (setup) bind(this, setup(this))
-                _.each(this.querySelectorAll('*[part]'), elPart => {
-                    const part = elPart.getAttribute('part') || ''
-                    const fullName = `${compName}${part ? `/${part}` : ''}`
-                    setup = $vui.setups[fullName]
-                    if (setup) bind(elPart, setup(elPart))
+                mutateDom(() => {
+                    const slotContents = {}
+                    const defaultSlotContent = []
+                    _.each(this.childNodes, elChild => {
+                        if (elChild.tagName === 'TEMPLATE') {
+                            let slotName = elChild.getAttribute('slot') || ''
+                            slotContents[slotName] = elChild.content.cloneNode(true).childNodes
+                        } else {
+                            _.each(elChild.querySelectorAll && elChild.querySelectorAll(`[${prefixed('for')}]`), elFor => {
+                                Object.values(elFor._x_lookup).forEach(el => el.remove())
+                                delete el._x_prevKeys
+                                delete el._x_lookup
+                            })
+                            defaultSlotContent.push(elChild.cloneNode(true))
+                        }
+                    })
+                    const dirComp = prefixed('component')
+                    const dirImport = prefixed('import')
+                    _.each(el.attributes, attr => {
+                        if (dirComp === attr.name || attr.name.startsWith(dirComp) ||
+                            dirImport === attr.name || attr.name.startsWith(dirImport)) return
+                        try {
+                            let name = attr.name
+                            if (name.startsWith('@'))
+                                name = `${prefixed('on')}:${name.substring(1)}`
+                            else if (name.startsWith(':'))
+                                name = `${prefixed('bind')}:${name.substring(1)}`
+                            if ('class' === name) {
+                                this.setAttribute(name, attr.value + ' ' + (this.getAttribute('class') || ''))
+                            } else {
+                                this.setAttribute(name, attr.value)
+                            }
+                        } catch (ex) {
+                            console.warn(`Fails to set attribute ${attr.name}=${attr.value} in ${this.tagName.toLowerCase()}`)
+                        }
+                    })
+                    this.innerHTML = el.innerHTML
+                    _.each(this.querySelectorAll("slot"), elSlot => {
+                        const name = elSlot.getAttribute('name') || ''
+                        elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                        elSlot.remove()
+                    })
+                    let setup = $vui.setups[compName]
+                    if (setup) bind(this, setup(this))
+                    _.each(this.querySelectorAll('*[part]'), elPart => {
+                        const part = elPart.getAttribute('part') || ''
+                        const fullName = `${compName}${part ? `/${part}` : ''}`
+                        setup = $vui.setups[fullName]
+                        if (setup) bind(elPart, setup(elPart))
+                    })
+
+                    initTree(this)
                 })
             }
         }
-        customElements.define(compName, $vui.components[compName]);
+        customElements.define(compName.toLowerCase(), $vui.components[compName]);
     })
 });$vui.import = (comps) => {
     const _ = $vui._
@@ -139,66 +160,73 @@ ${elScript.innerHTML}
             comp = comp.trim()
             const urlTpl = importMap['*']
             let url = null
-            let parts = comp.split('/')
-            let compInfo = parts.length === 1 ? { namespace: "", component: comp } : { namespace: parts[0], component: parts[1] }
-            if (compInfo.namespace && importMap[compInfo.namespace])
-                urlTpl = importMap[compInfo.namespace]
-            try {
-                const parse = new Function("data", "with (data){return `" + urlTpl + "`}")
-                url = parse(compInfo)
-            } catch (ex) {
-                console.error(`Fails to parse url template ${urlTpl} with component ${comp}`)
-                return
-            }
-            if (url && !$vui.imports[url]) {
-                $vui.imports[url] = true
-                tasks.push(fetch(url).then(r => r.text()).then(html => {
-                    const el = document.createElement('div')
-                    el.innerHTML = html
-                    let all = [...el.childNodes]
-                    return new Promise((resolve) => {
-                        const process = (i) => {
-                            if (i < all.length) {
-                                const elChild = all[i]
-                                elChild.remove()
-                                if (elChild.tagName === 'SCRIPT') {
-                                    const elExecute = document.createElement("script")
-                                    const wait = elChild.src && !elChild.async
-                                    if (wait) {
-                                        elExecute.onload = () => {
-                                            process(i + 1)
+            let pos = comp.indexOf('/')
+            let namespace = pos === -1 ? '' : comp.substring(0, pos)
+            if (pos !== -1) comp = comp.substring(pos + 1)
+            _.each(comp.split(','), component => {
+                component = component.trim()
+                let compInfo = { namespace, component, full: `${namespace ? namespace + '/' : ''}${component}` }
+                if (compInfo.namespace && importMap[compInfo.namespace])
+                    urlTpl = importMap[compInfo.namespace]
+                try {
+                    const parse = new Function("data", "with (data){return `" + urlTpl + "`}")
+                    url = parse(compInfo)
+                } catch (ex) {
+                    console.error(`Fails to parse url template ${urlTpl} with component ${comp}`)
+                    return
+                }
+                if (url && !$vui.imports[url]) {
+                    $vui.imports[url] = true
+                    tasks.push(fetch(url).then(r => r.text()).then(html => {
+                        const el = document.createElement('div')
+                        el._x_ignore = true
+                        el.innerHTML = html
+                        let all = [...el.childNodes]
+                        return new Promise((resolve) => {
+                            const process = (i) => {
+                                if (i < all.length) {
+                                    const elChild = all[i]
+                                    elChild.remove()
+                                    if (elChild.tagName === 'SCRIPT') {
+                                        const elExecute = document.createElement("script")
+                                        const wait = elChild.src && !elChild.async
+                                        if (wait) {
+                                            elExecute.onload = () => {
+                                                process(i + 1)
+                                            }
+                                            elExecute.onerror = () => {
+                                                console.error(`Fails to load script from "${elExecute.src}"`)
+                                                process(i + 1)
+                                            }
                                         }
-                                        elExecute.onerror = () => {
-                                            console.error(`Fails to load script from "${elExecute.src}"`)
-                                            process(i + 1)
+                                        _.each(elChild.attributes, a => elExecute.setAttribute(a.name, a.value))
+                                        if (!elChild.src) {
+                                            let file = `__vui__/scripts/js_${$vui.importScriptIndex}.js`
+                                            elExecute.setAttribute('file', file)
+                                            elExecute.innerHTML = `${elChild.innerHTML}\r\n//# sourceURL=${file}`
+                                            $vui.importScriptIndex++
                                         }
+                                        document.body.append(elExecute)
+                                        if (!wait) process(i + 1)
+                                    } else if (elChild.tagName === 'TEMPLATE') {
+                                        document.body.append(elChild)
+                                        process(i + 1)
+                                    } else {
+                                        process(i + 1)
                                     }
-                                    _.each(elChild.attributes, a => elExecute.setAttribute(a.name, a.value))
-                                    if (!elChild.src) {
-                                        let file = `__vui__/scripts/js_${$vui.importScriptIndex}.js`
-                                        elExecute.setAttribute('file', file)
-                                        elExecute.innerHTML = `${elChild.innerHTML}\r\n//# sourceURL=${file}`
-                                        $vui.importScriptIndex++
-                                    }
-                                    document.body.append(elExecute)
-                                    if (!wait) process(i + 1)
-                                } else if (elChild.tagName === 'TEMPLATE') {
-                                    document.body.append(elChild)
-                                    process(i + 1)
                                 } else {
-                                    process(i + 1)
+                                    if ($vui.config.debug)
+                                        console.log(`Imported ${comp} @ ${url}`)
+                                    resolve()
                                 }
-                            } else {
-                                console.log(`Imported ${comp} @ ${url}`)
-                                resolve()
                             }
-                        }
-                        process(0)
-                    })
-                }).catch(ex => {
-                    console.error(`Fails to import ${comp} @ ${url}`, ex)
-                }))
-            }
+                            process(0)
+                        })
+                    }).catch(ex => {
+                        console.error(`Fails to import ${comp} @ ${url}`, ex)
+                    }))
+                }
+            })
         })
         return Promise.all(tasks)
     } else {
@@ -207,7 +235,8 @@ ${elScript.innerHTML}
 }
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, evaluateLater, effect } = Alpine
+    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    addRootSelector(() => `[${prefixed('import')}]`)
     directive('import', (el, { expression }, { cleanup }) => {
         if (!expression) return
         let comps = expression.trim()
@@ -219,7 +248,7 @@ $vui.ready(() => {
                 }
             }))
         } else {
-            $vui.import(comps.split(','))
+            $vui.import(comps.split(';'))
         }
     })
 });(() => {
