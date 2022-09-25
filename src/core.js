@@ -13,8 +13,11 @@
             }
         }
     }
-
-    const _ = G.$vui._ = {
+    const initAt = new Date()
+    const _ = G.$vui._ = {    
+        elapse(){
+            return new Date() - initAt
+        },
         isString(str) {
             return (str != null && typeof str.valueOf() === "string")
         },
