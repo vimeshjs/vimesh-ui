@@ -66,11 +66,13 @@ if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
     const { directive, bind, prefixed, addRootSelector, mutateDom, initTree } = Alpine
+    const ATTR_UI = 'v-ui'
+    const ATTR_CLOAK = 'v-cloak'
     let styleElement = document.createElement('style')
     styleElement.setAttribute('id', 'vimesh-ui-component-common-styles')
     styleElement.innerHTML = `
-    [v-at] {display : block}
-    [v-cloak] {display: none !important;}
+    [${ATTR_UI}] {display : block}
+    [${ATTR_CLOAK}] {display: none !important;}
     `
     document.head.prepend(styleElement)
     addRootSelector(() => `[${prefixed('component')}]`)
@@ -140,15 +142,15 @@ ${elScript.innerHTML}
                     let elComp = this
                     if (unwrap) {
                         elComp = el.content.cloneNode(true).firstElementChild
-                        elComp.setAttribute('v-component', compName)
                         copyAttributes(this, elComp)
                         this.after(elComp)
                         this.remove()
                     } else {
                         elComp.innerHTML = el.innerHTML
+                        elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
                     }
-                    elComp.setAttribute('v-at', `${_.elapse()}`)
                     copyAttributes(el, elComp)
+                    elComp.removeAttribute(ATTR_CLOAK)
                     _.each(elComp.querySelectorAll("slot"), elSlot => {
                         const name = elSlot.getAttribute('name') || ''
                         elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
