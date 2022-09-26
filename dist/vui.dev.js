@@ -1,4 +1,4 @@
-// Vimesh UI v0.4.1
+// Vimesh UI v0.4.2
 "use strict";
 
 (function (G) {
@@ -100,6 +100,7 @@ ${elScript.innerHTML}
 //# sourceURL=__vui__/${fullName}.js
 `
             document.body.append(elExecute)
+            elScript.remove()
         })
         function copyAttributes(elFrom, elTo) {
             _.each(elFrom.attributes, attr => {
