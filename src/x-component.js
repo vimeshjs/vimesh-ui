@@ -37,6 +37,7 @@ ${elScript.innerHTML}
 //# sourceURL=__vui__/${fullName}.js
 `
             document.body.append(elExecute)
+            elScript.remove()
         })
         function copyAttributes(elFrom, elTo) {
             _.each(elFrom.attributes, attr => {

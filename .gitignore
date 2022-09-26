@@ -4,8 +4,6 @@ dev/
 ref/
 node_modules/
 yarn.lock
-doc
 examples/
-components/
-favicon.ico
+doc
 __tests__
