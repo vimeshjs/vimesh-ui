@@ -2,7 +2,7 @@ if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, bind, prefixed, addRootSelector, mutateDom, initTree } = Alpine
+    const { directive, bind, prefixed, addRootSelector} = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
     let styleElement = document.createElement('style')
@@ -61,49 +61,52 @@ ${elScript.innerHTML}
         }
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
-                mutateDom(() => {
-                    const slotContents = {}
-                    const defaultSlotContent = []
-                    _.each(this.childNodes, elChild => {
-                        if (elChild.tagName === 'TEMPLATE') {
-                            let slotName = elChild.getAttribute('slot') || ''
-                            slotContents[slotName] = elChild.content.cloneNode(true).childNodes
-                        } else {
-                            _.each(elChild.querySelectorAll && elChild.querySelectorAll(`[${prefixed('for')}]`), elFor => {
-                                Object.values(elFor._x_lookup).forEach(el => el.remove())
-                                delete el._x_prevKeys
-                                delete el._x_lookup
-                            })
-                            defaultSlotContent.push(elChild.cloneNode(true))
-                        }
-                    })
-                    let elComp = this
-                    if (unwrap) {
-                        elComp = el.content.cloneNode(true).firstElementChild
-                        copyAttributes(this, elComp)
-                        this.after(elComp)
-                        this.remove()
-                    } else {
-                        elComp.innerHTML = el.innerHTML
-                        elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
+                const slotContents = {}
+                const defaultSlotContent = []
+                _.each(this.querySelectorAll(`[${prefixed('for')}]`), elFor => {
+                    if (elFor._x_lookup) {
+                        Object.values(elFor._x_lookup).forEach(el => el.remove())
+                        delete el._x_prevKeys
+                        delete el._x_lookup
                     }
-                    copyAttributes(el, elComp)
-                    elComp.removeAttribute(ATTR_CLOAK)
-                    _.each(elComp.querySelectorAll("slot"), elSlot => {
-                        const name = elSlot.getAttribute('name') || ''
-                        elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
-                        elSlot.remove()
-                    })
+                })
+                _.each(this.childNodes, elChild => {
+                    if (elChild.tagName === 'TEMPLATE' && elChild.hasAttribute('slot')) {
+                        let slotName = elChild.getAttribute('slot') || ''
+                        slotContents[slotName] = elChild.content.cloneNode(true).childNodes
+                    } else {
+                        defaultSlotContent.push(elChild.cloneNode(true))
+                    }
+                })
+                let elComp = this
+                const setupRoot = () => {
                     let setup = $vui.setups[compName]
-                    if (setup) bind(this, setup(this))
-                    _.each(elComp.querySelectorAll('*[part]'), elPart => {
-                        const part = elPart.getAttribute('part') || ''
-                        const fullName = `${compName}${part ? `/${part}` : ''}`
-                        setup = $vui.setups[fullName]
-                        if (setup) bind(elPart, setup(elPart))
-                    })
+                    if (setup) bind(elComp, setup(elComp))
+                }
+                if (unwrap) {
+                    elComp = el.content.cloneNode(true).firstElementChild
+                    setupRoot()
+                    copyAttributes(this, elComp)
+                    this.after(elComp)
+                    this.remove()
+                } else {
+                    setupRoot()
+                    elComp.innerHTML = el.innerHTML
+                    elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
+                }
+                copyAttributes(el, elComp)
+                elComp.removeAttribute(ATTR_CLOAK)
 
-                    initTree(this)
+                _.each(elComp.querySelectorAll("slot"), elSlot => {
+                    const name = elSlot.getAttribute('name') || ''
+                    elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                    elSlot.remove()
+                })
+                _.each(elComp.querySelectorAll('*[part]'), elPart => {
+                    const part = elPart.getAttribute('part') || ''
+                    const fullName = `${compName}${part ? `/${part}` : ''}`
+                    let setup = $vui.setups[fullName]
+                    if (setup) bind(elPart, setup(elPart))
                 })
             }
         }
