@@ -2,9 +2,10 @@ if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, bind, prefixed, addRootSelector} = Alpine
+    const { directive, bind, prefixed, addRootSelector } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
+    const ATTR_X_IGNORE = 'x-ignore'
     let styleElement = document.createElement('style')
     styleElement.setAttribute('id', 'vimesh-ui-component-common-styles')
     styleElement.innerHTML = `
@@ -22,7 +23,8 @@ $vui.ready(() => {
         const dirImport = prefixed('import')
         const namespace = value || $vui.config.namespace || 'vui'
         const prefixMap = $vui.config.prefixMap || {}
-        const compName = `${prefixMap[namespace] || namespace}-${expression}`
+        const prefix = prefixMap[namespace] || namespace
+        const compName = `${prefix}-${expression}`
         const unwrap = modifiers.includes('unwrap')
         _.each(el.content.querySelectorAll("script"), elScript => {
             const part = elScript.getAttribute('part') || ''
@@ -71,15 +73,24 @@ ${elScript.innerHTML}
                     }
                 })
                 _.each(this.childNodes, elChild => {
-                    if (elChild.tagName === 'TEMPLATE' && elChild.hasAttribute('slot')) {
+                    if (elChild.tagName && elChild.hasAttribute('slot')) {
                         let slotName = elChild.getAttribute('slot') || ''
-                        slotContents[slotName] = elChild.content.cloneNode(true).childNodes
+                        let content = elChild.tagName === 'TEMPLATE' ?
+                            elChild.content.cloneNode(true).childNodes :
+                            [elChild.cloneNode(true)]
+                        if (slotContents[slotName])
+                            slotContents[slotName].push(...content)
+                        else
+                            slotContents[slotName] = content
                     } else {
                         defaultSlotContent.push(elChild.cloneNode(true))
                     }
                 })
                 let elComp = this
                 const setupRoot = () => {
+                    elComp._vui_prefix = prefix
+                    elComp._vui_type = expression
+                    elComp._vui_namespace = namespace
                     let setup = $vui.setups[compName]
                     if (setup) bind(elComp, setup(elComp))
                 }
@@ -96,6 +107,7 @@ ${elScript.innerHTML}
                 }
                 copyAttributes(el, elComp)
                 elComp.removeAttribute(ATTR_CLOAK)
+                elComp.removeAttribute(ATTR_X_IGNORE)
 
                 _.each(elComp.querySelectorAll("slot"), elSlot => {
                     const name = elSlot.getAttribute('name') || ''
