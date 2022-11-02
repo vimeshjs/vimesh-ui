@@ -14,7 +14,7 @@ const processors = {
     '': js => UglifyJS.minify(js).code
 }
 
-let files = ['core.js', 'x-component.js', 'x-import.js']
+let files = ['core.js', 'x-component.js', 'x-import.js', 'x-include.js']
 
 let code = _.map([..._.map(files, f => `${dirSrc}/${f}`), `${dirDepends}/@alpinejs/focus/dist/cdn.js`], f => fs.readFileSync(f)).join(';')
 

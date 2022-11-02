@@ -1,4 +1,4 @@
-// Vimesh UI v0.4.3
+// Vimesh UI v0.5.0
 "use strict";
 
 (function (G) {
@@ -65,9 +65,10 @@
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, bind, prefixed, addRootSelector} = Alpine
+    const { directive, bind, prefixed, addRootSelector } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
+    const ATTR_X_IGNORE = 'x-ignore'
     let styleElement = document.createElement('style')
     styleElement.setAttribute('id', 'vimesh-ui-component-common-styles')
     styleElement.innerHTML = `
@@ -85,7 +86,8 @@ $vui.ready(() => {
         const dirImport = prefixed('import')
         const namespace = value || $vui.config.namespace || 'vui'
         const prefixMap = $vui.config.prefixMap || {}
-        const compName = `${prefixMap[namespace] || namespace}-${expression}`
+        const prefix = prefixMap[namespace] || namespace
+        const compName = `${prefix}-${expression}`
         const unwrap = modifiers.includes('unwrap')
         _.each(el.content.querySelectorAll("script"), elScript => {
             const part = elScript.getAttribute('part') || ''
@@ -134,15 +136,24 @@ ${elScript.innerHTML}
                     }
                 })
                 _.each(this.childNodes, elChild => {
-                    if (elChild.tagName === 'TEMPLATE' && elChild.hasAttribute('slot')) {
+                    if (elChild.tagName && elChild.hasAttribute('slot')) {
                         let slotName = elChild.getAttribute('slot') || ''
-                        slotContents[slotName] = elChild.content.cloneNode(true).childNodes
+                        let content = elChild.tagName === 'TEMPLATE' ?
+                            elChild.content.cloneNode(true).childNodes :
+                            [elChild.cloneNode(true)]
+                        if (slotContents[slotName])
+                            slotContents[slotName].push(...content)
+                        else
+                            slotContents[slotName] = content
                     } else {
                         defaultSlotContent.push(elChild.cloneNode(true))
                     }
                 })
                 let elComp = this
                 const setupRoot = () => {
+                    elComp._vui_prefix = prefix
+                    elComp._vui_type = expression
+                    elComp._vui_namespace = namespace
                     let setup = $vui.setups[compName]
                     if (setup) bind(elComp, setup(elComp))
                 }
@@ -159,6 +170,7 @@ ${elScript.innerHTML}
                 }
                 copyAttributes(el, elComp)
                 elComp.removeAttribute(ATTR_CLOAK)
+                elComp.removeAttribute(ATTR_X_IGNORE)
 
                 _.each(elComp.querySelectorAll("slot"), elSlot => {
                     const name = elSlot.getAttribute('name') || ''
@@ -279,6 +291,93 @@ $vui.ready(() => {
             }))
         } else {
             $vui.import(comps.split(';'))
+        }
+    })
+});$vui.include = (elHost, urls) => {
+    const _ = $vui._
+    const unwrap = elHost._vui_unwrap
+    if (_.isArray(urls)) {
+        const tasks = []
+        _.each(urls, url => {
+            url = url.trim()
+            if (url) {
+                tasks.push(fetch(url).then(r => r.text()).then(html => {
+                    const el = document.createElement('div')
+                    el._x_ignore = true
+                    el.innerHTML = html
+                    let all = [...el.childNodes]
+                    return new Promise((resolve) => {
+                        const process = (i) => {
+                            if (i < all.length) {
+                                const elChild = all[i]
+                                elChild.remove()
+                                if (elChild.tagName === 'SCRIPT') {
+                                    const elExecute = document.createElement("script")
+                                    const wait = elChild.src && !elChild.async
+                                    if (wait) {
+                                        elExecute.onload = () => {
+                                            process(i + 1)
+                                        }
+                                        elExecute.onerror = () => {
+                                            console.error(`Fails to load script from "${elExecute.src}"`)
+                                            process(i + 1)
+                                        }
+                                    }
+                                    _.each(elChild.attributes, a => elExecute.setAttribute(a.name, a.value))
+                                    if (!elChild.src) {
+                                        let file = `__vui__/scripts/js_${$vui.importScriptIndex}.js`
+                                        elExecute.setAttribute('file', file)
+                                        elExecute.innerHTML = `${elChild.innerHTML}\r\n//From ${url}\r\n//# sourceURL=${file}`
+                                        $vui.importScriptIndex++
+                                    }
+                                    document.body.append(elExecute)
+                                    if (!wait) process(i + 1)
+                                } else {
+                                    if (unwrap){
+                                        elHost.before(elChild)
+                                    } else {
+                                        elHost.append(elChild)
+                                    }
+                                    process(i + 1)
+                                }
+                            } else {
+                                if ($vui.config.debug)
+                                    console.log(`Included ${url}`)
+                                if (unwrap) elHost.remove()
+                                resolve()
+                            }
+                        }
+                        process(0)
+                    })
+                }).catch(ex => {
+                    console.error(`Fails to include ${comp} @ ${url}`, ex)
+                }))
+            }
+        })
+        return Promise.all(tasks)
+    } else {
+        return Promise.reject(`Fails to include ${urls} !`)
+    }
+}
+$vui.ready(() => {
+    const _ = $vui._
+    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    addRootSelector(() => `[${prefixed('include')}]`)
+    directive('include', (el, { expression, modifiers }, { cleanup }) => {
+        if (!expression) return
+        el._vui_unwrap = modifiers.includes('unwrap')
+        let urls = expression.trim()
+        if (urls.startsWith('.') || urls.startsWith('/') || urls.startsWith('http://') || urls.startsWith('https://')) {
+            $vui.include(el, [urls])
+        } else {
+            let evaluate = evaluateLater(el, expression)
+            effect(() => evaluate(value => {
+                if (_.isArray(value)) {
+                    $vui.include(el, value)
+                } else if (_.isString(value)) {
+                    $vui.include(el, [value])
+                }
+            }))
         }
     })
 });(() => {
