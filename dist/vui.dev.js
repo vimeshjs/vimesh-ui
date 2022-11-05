@@ -1,4 +1,4 @@
-// Vimesh UI v0.5.0
+// Vimesh UI v0.5.1
 "use strict";
 
 (function (G) {
@@ -296,12 +296,20 @@ $vui.ready(() => {
 });$vui.include = (elHost, urls) => {
     const _ = $vui._
     const unwrap = elHost._vui_unwrap
+    let baseUrl
+    for (let elCurrent = elHost; elCurrent; elCurrent = elCurrent.parentElement) {
+        baseUrl = elCurrent._vui_base_url
+        if (baseUrl) break
+    }
+    if (!baseUrl)
+        baseUrl = document.baseURI
     if (_.isArray(urls)) {
         const tasks = []
         _.each(urls, url => {
             url = url.trim()
             if (url) {
-                tasks.push(fetch(url).then(r => r.text()).then(html => {
+                let fullUrl = new URL(url, baseUrl).href
+                tasks.push(fetch(fullUrl).then(r => r.text()).then(html => {
                     const el = document.createElement('div')
                     el._x_ignore = true
                     el.innerHTML = html
@@ -333,7 +341,8 @@ $vui.ready(() => {
                                     document.body.append(elExecute)
                                     if (!wait) process(i + 1)
                                 } else {
-                                    if (unwrap){
+                                    elChild._vui_base_url = fullUrl
+                                    if (unwrap) {
                                         elHost.before(elChild)
                                     } else {
                                         elHost.append(elChild)
@@ -376,6 +385,8 @@ $vui.ready(() => {
                     $vui.include(el, value)
                 } else if (_.isString(value)) {
                     $vui.include(el, [value])
+                } else {
+                    $vui.include(el, [urls])
                 }
             }))
         }
