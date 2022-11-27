@@ -1,0 +1,18 @@
+<head>
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script>
+        $vui.config = {
+            namespace: 'myui'
+        }
+    </script>
+</head>
+
+<body>
+    <myui-greeting>My UI</myui-greeting>
+
+    <template x-component="greeting">
+        <h1>Hello <slot></slot>
+        </h1>
+    </template>
+</body>

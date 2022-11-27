@@ -4,6 +4,5 @@ dev/
 ref/
 node_modules/
 yarn.lock
-examples/
 doc
 __tests__
