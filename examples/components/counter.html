@@ -2,7 +2,9 @@
     <div>
         Step: <span x-text="step"></span><br>
         Value : <span x-text="value"></span><br>
-        <button @click="$api.increase()">Increase</button>
+        <button @click="$api.increase()" class="inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-white shadow-sm ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700">
+            Increase
+        </button>
     </div>
     <script>
         return {
