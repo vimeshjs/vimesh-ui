@@ -101,9 +101,12 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
     <script src="https://unpkg.com/alpinejs" defer></script>      
 </head>
 
-<body>
-    This is a remote article:<br>
-    <div x-include="./static/article"></div>
+<body x-data>
+    Load into the external "div" tag:<br>
+    <div style="background-color: #888;" x-include="./static/article"></div>
+
+    Unwrap the external "div" tag:<br>
+    <div style="background-color: #888;" x-include.unwrap="./static/article"></div>
 </body>
 ```
 > /static/article.html

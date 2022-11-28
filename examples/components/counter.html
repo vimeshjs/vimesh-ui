@@ -1,0 +1,17 @@
+<template x-component="counter" text="blue-500" x-data="{ step : 1, value: 0}" x-init="$api.init && $api.init()">
+    <div>
+        Step: <span x-text="step"></span><br>
+        Value : <span x-text="value"></span><br>
+        <button @click="$api.increase()">Increase</button>
+    </div>
+    <script>
+        return {
+            init(){
+                console.log(`Value : ${this.value} , Step : ${this.step}`)
+            },
+            increase(){
+                this.value += this.step
+            }
+        }
+    </script>
+</template>
