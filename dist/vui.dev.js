@@ -1,4 +1,4 @@
-// Vimesh UI v0.7.1
+// Vimesh UI v0.7.2
 "use strict";
 
 (function (G) {
@@ -197,6 +197,8 @@ ${elScript.innerHTML}
                 if (setup) {
                     elComp._vui_api = setup(elComp)
                 }
+                if (!elComp.hasAttribute(DIR_DATA))
+                    elComp.setAttribute(DIR_DATA, '{}')
                 elComp.removeAttribute(ATTR_CLOAK)
             }
         }
