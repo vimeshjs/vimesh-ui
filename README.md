@@ -28,29 +28,32 @@ This directive creates an HTML native custom element around Alpine.js template.
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/mdKKMpb)
 
-It shows `Hello Vimesh UI`. There is a default custom element prefix `vui-`. You could change the default component namespace.
-
+It shows `Hello Vimesh UI`. Now let's add some interaction logic. There are two magics `$api` and `$prop` for a Vimesh UI component. `$api` comes from the return object of the first `<script>`. `$prop` is function to receive the passed value of component property:
 ```html
 <head>
     <script src="https://unpkg.com/@vimesh/ui"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
-    <script>
-        $vui.config = {
-            namespace: 'myui'
-        }
-    </script>
 </head>
 
-<body>
-    <myui-greeting>My UI</myui-greeting>
+<body x-data="{name: 'Vimesh UI'}">
+    <vui-greeting greeting-word="Hi" :who="name"></vui-greeting>
 
     <template x-component="greeting">
-        <h1>Hello <slot></slot>
-        </h1>
+        <h1><span x-text="$prop('greeting-word')"></span> <span x-text="$prop('who')"></span></h1>
+        <button @click="$api.say()">Click me</button>
+        <script>
+            return {
+                say() {
+                    alert(this.$prop('greeting-word') + ' ' + this.$prop('who'))
+                }
+            }
+        </script>
     </template>
 </body>
 ```
-[Run on codepen](https://codepen.io/vimeshjs/pen/LYrrjdq)
+
+[Run on codepen](https://codepen.io/vimeshjs/pen/JjZBvPy)
+
 
 ## x-import
 Of course, we don't want to embed common components in every page. The `x-import` directive helps to load remote components asynchronously. Let's extract the greeting component into a standalone file. 
@@ -117,4 +120,3 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
 </p>
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/poKKrYd)
-
