@@ -28,7 +28,7 @@ This directive creates an HTML native custom element around Alpine.js template.
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/mdKKMpb)
 
-It shows `Hello Vimesh UI`. Now let's add some interaction logic. There are two magics `$api` and `$prop` for a Vimesh UI component. `$api` comes from the return object of the first `<script>`. `$prop` is function to receive the passed value of component property:
+It shows `Hello Vimesh UI`. Now let's add some interaction logic. There are two magics `$api` and `$prop` for a Vimesh UI component. `$api` comes from the return object of the first `<script>` inside of component template. `$prop` is function to get the passed value of component property:
 ```html
 <head>
     <script src="https://unpkg.com/@vimesh/ui"></script>
