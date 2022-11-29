@@ -54,6 +54,35 @@ It shows `Hello Vimesh UI`. Now let's add some interaction logic. There are two 
 
 [Run on codepen](https://codepen.io/vimeshjs/pen/JjZBvPy)
 
+The default custom element namespace is `vui`, which could be modified in config. You could also give a different namespace with format `x-component:{namespace}="component name"`
+
+```html
+<head>
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script>
+        $vui.config = {
+            namespace: 'myui'
+        }
+    </script>
+</head>
+
+<body x-data>
+    <myui-greeting>My UI</myui-greeting>
+    <new-greeting>My UI</new-greeting>
+
+    <template x-component="greeting">
+        <h1>Hello <slot></slot>
+        </h1>
+    </template>
+
+    <template x-component:new="greeting">
+        <h1>Hi <slot></slot>
+        </h1>
+    </template>
+</body>
+```
+[Run on codepen](https://codepen.io/vimeshjs/pen/LYrrjdq)
 
 ## x-import
 Of course, we don't want to embed common components in every page. The `x-import` directive helps to load remote components asynchronously. Let's extract the greeting component into a standalone file. 
@@ -95,6 +124,62 @@ The components could be loaded from anywhere, like
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/poKKrYd)
 
+Here is a more complete example:
+> /counters.html
+```html
+<head>
+    <script src="https://unpkg.com/@vimesh/style" defer></script>
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+        $vui.config.importMap = {
+            "*": './components/${component}.html'
+        }
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body x-cloak x-import="counter" class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
+    Rename the 2nd counter : <input type="text" x-model="name" class="rounded-md border-2 border-blue-500">
+    <vui-counter x-data="{step: 1}" :primary="true" title="First" x-init="console.log('This is the first one')" owner-name="Tom"></vui-counter>
+    <vui-counter x-data="{step: 5}" :title="name + ' @ ' + $prop('owner-name')" owner-name="Frank"></vui-counter>
+    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner"></vui-counter>
+</body>
+```
+> /components/counter.html
+```html
+<template x-component.unwrap="counter" :class="$prop('primary') ? 'text-red-500' : 'text-blue-500'"
+    x-data="{ step : 1, value: 0}" x-init="$api.init && $api.init()" title="Counter" owner-name="nobody">
+    <div>
+        <span x-text="$prop('title')"></span><br>
+        Owner: <span x-text="$prop('owner-name')"></span><br>
+        Step: <span x-text="step"></span><br>
+        Value : <span x-text="value"></span><br>
+        <button @click="$api.increase()"
+            class="inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-white shadow ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700">
+            Increase
+        </button>
+    </div>
+    <script>
+        return {
+            init() {
+                console.log(`Value : ${this.value} , Step : ${this.step}`)
+            },
+            increase() {
+                this.value += this.step
+            }
+        }
+    </script>
+</template>
+```
+
+[Run on codepen](https://codepen.io/vimeshjs/pen/RwJBygE)
+
 ## x-include
 Sometimes we just need to load a piece of html. The `x-include` is convenient to use in this case.
 > /include-article.html
@@ -120,3 +205,4 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
 </p>
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/poKKrYd)
+

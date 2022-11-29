@@ -8,11 +8,17 @@
     </script>
 </head>
 
-<body>
+<body x-data>
     <myui-greeting>My UI</myui-greeting>
+    <new-greeting>My UI</new-greeting>
 
     <template x-component="greeting">
         <h1>Hello <slot></slot>
+        </h1>
+    </template>
+
+    <template x-component:new="greeting">
+        <h1>Hi <slot></slot>
         </h1>
     </template>
 </body>
