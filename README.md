@@ -144,11 +144,13 @@ Here is a more complete example:
     </style>
 </head>
 
-<body x-cloak x-import="counter" class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
+<body x-cloak x-import="counter;counter-trigger" class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
     Rename the 2nd counter : <input type="text" x-model="name" class="rounded-md border-2 border-blue-500">
     <vui-counter x-data="{step: 1}" :primary="true" title="First" x-init="console.log('This is the first one')" owner-name="Tom"></vui-counter>
     <vui-counter x-data="{step: 5}" :title="name + ' @ ' + $prop('owner-name')" owner-name="Frank"></vui-counter>
-    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner"></vui-counter>
+    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner">
+        <vui-counter-trigger></vui-counter-trigger>
+    </vui-counter>
 </body>
 ```
 > /components/counter.html
@@ -164,6 +166,7 @@ Here is a more complete example:
             class="inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-white shadow ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700">
             Increase
         </button>
+        <slot></slot>
     </div>
     <script>
         return {
@@ -177,7 +180,14 @@ Here is a more complete example:
     </script>
 </template>
 ```
-
+> /components/counter-trigger.html
+```html
+<template x-component="counter-trigger">
+    <button @click="$api.of('counter').increase()"
+        class="inline-block rounded-lg mt-2 bg-green-600 px-4 py-1.5 text-white shadow ring-1 ring-green-600 hover:bg-green-700 hover:ring-green-700">
+        Tigger from child element</button>
+</template>
+```
 [Run on codepen](https://codepen.io/vimeshjs/pen/RwJBygE)
 
 ## x-include
