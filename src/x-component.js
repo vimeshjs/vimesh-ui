@@ -2,7 +2,7 @@ if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, prefixed, addRootSelector, magic, closestDataStack, mergeProxies } = Alpine
+    const { directive, prefixed, addRootSelector, magic, closestDataStack, mergeProxies, evaluateLater, effect } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
 
@@ -10,7 +10,6 @@ $vui.ready(() => {
     const DIR_IMPORT = prefixed('import')
     const DIR_DATA = prefixed('data')
     const DIR_INIT = prefixed('init')
-    const DIR_IGNORE = prefixed('ignore')
 
     let styleElement = document.createElement('style')
     styleElement.setAttribute('id', 'vimesh-ui-component-common-styles')
@@ -19,27 +18,29 @@ $vui.ready(() => {
     [${ATTR_CLOAK}] {display: none !important;}
     `
     document.head.prepend(styleElement)
-    _.each(document.body.querySelectorAll('*'), el => {
-        let tn = el.tagName.toLowerCase()
-        if (tn.startsWith('vui-')) {
-            el.setAttribute(DIR_IGNORE, '')
-        }
-    })
     addRootSelector(() => `[${DIR_COMP}]`)
-    function getApi(el) {
-        if (el._vui_api) return el._vui_api
-        if (el.parentNode) return getApi(el.parentNode)
-        return null
+    function findWrapperComponent(el, filter) {
+        if (!el) return null
+        if (el._vui_type) {
+            if (!filter || filter(el)) return el
+        }
+        return findWrapperComponent(el.parentNode)
     }
     magic('api', el => {
-        let api = getApi(el) || {}
-        return mergeProxies([api, ...closestDataStack(el)])
+        let comp = findWrapperComponent(el)
+        return mergeProxies([comp && comp._vui_api || {}, ...closestDataStack(el)])
+    })
+    magic('prop', el => {
+        return (name) => {
+            let comp = findWrapperComponent(el)
+            if (!comp) return null
+            return (comp._x_bindings || {})[name] || Alpine.bound(comp, name)
+        }
     })
     directive('component', (el, { expression, value, modifiers }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') {
             return console.warn('x-component can only be used on a <template> tag', el)
         }
-        el._x_ignore = true
         const namespace = value || $vui.config.namespace || 'vui'
         const prefixMap = $vui.config.prefixMap || {}
         const prefix = prefixMap[namespace] || namespace
@@ -75,7 +76,7 @@ ${elScript.innerHTML}
                         elTo.setAttribute(name, '{...' + attr.value + ',...' + elTo.getAttribute(DIR_DATA) + '}')
                     } else if ('class' === name) {
                         elTo.setAttribute(name, attr.value + ' ' + (elTo.getAttribute('class') || ''))
-                    } else if (!elTo.hasAttribute(name)){
+                    } else if (!elTo.hasAttribute(name)) {
                         elTo.setAttribute(name, attr.value)
                     }
                 } catch (ex) {
@@ -134,8 +135,6 @@ ${elScript.innerHTML}
                     elComp._vui_api = setup(elComp)
                 }
                 elComp.removeAttribute(ATTR_CLOAK)
-                elComp.removeAttribute(DIR_IGNORE)
-                elComp._x_ignore = false
             }
         }
         customElements.define(compName.toLowerCase(), $vui.components[compName]);

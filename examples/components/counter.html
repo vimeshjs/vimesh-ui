@@ -1,17 +1,21 @@
-<template x-component="counter" text="blue-500" x-data="{ step : 1, value: 0}" x-init="$api.init && $api.init()">
+<template x-component.unwrap="counter" :class="$prop('primary') ? 'text-red-500' : 'text-blue-500'"
+    x-data="{ step : 1, value: 0}" x-init="$api.init && $api.init()" title="Counter" owner-name="nobody">
     <div>
+        <span x-text="$prop('title')"></span><br>
+        Owner: <span x-text="$prop('owner-name')"></span><br>
         Step: <span x-text="step"></span><br>
         Value : <span x-text="value"></span><br>
-        <button @click="$api.increase()" class="inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-white shadow-sm ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700">
+        <button @click="$api.increase()"
+            class="inline-block rounded-lg bg-indigo-600 px-4 py-1.5 text-white shadow ring-1 ring-indigo-600 hover:bg-indigo-700 hover:ring-indigo-700">
             Increase
         </button>
     </div>
     <script>
         return {
-            init(){
+            init() {
                 console.log(`Value : ${this.value} , Step : ${this.step}`)
             },
-            increase(){
+            increase() {
                 this.value += this.step
             }
         }

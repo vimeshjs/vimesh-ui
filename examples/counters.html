@@ -1,8 +1,19 @@
 <head>
-
+    <!--
     <script src="https://unpkg.com/@vimesh/style" defer></script>
     <script src="https://unpkg.com/@vimesh/ui"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
+    -->
+
+        <script src="../dev/vs@0.13.1.js" defer></script>
+
+    
+        <script src="../src/core.js"></script>
+        <script src="../src/x-component.js"></script>
+        <script src="../src/x-import.js"></script>
+        <script src="../node_modules/@alpinejs/focus/dist/cdn.js"></script>
+        
+        <script src="../node_modules/alpinejs/dist/cdn.js" defer></script>
 
     <script>
         $vui.config.importMap = {
@@ -16,8 +27,9 @@
     </style>
 </head>
 
-<body x-cloak x-import="counter" p="2">   
-    <vui-counter x-data="{step: 1}" text="red-500" x-init="console.log('This is the first one')"></vui-counter>
-    <vui-counter x-data="{step: 5}" ></vui-counter>
-    <vui-counter x-data="{step: 10, value: 1000}"></vui-counter>
+<body x-cloak x-import="counter" class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
+    Rename the 2nd counter : <input type="text" x-model="name" class="rounded-md border-2 border-blue-500">
+    <vui-counter x-data="{step: 1}" :primary="true" title="First" x-init="console.log('This is the first one')" owner-name="Tom"></vui-counter>
+    <vui-counter x-data="{step: 5}" :title="name + ' @ ' + $prop('owner-name')" owner-name="Frank"></vui-counter>
+    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner"></vui-counter>
 </body>
