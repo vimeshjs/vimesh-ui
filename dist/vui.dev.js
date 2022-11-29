@@ -1,4 +1,4 @@
-// Vimesh UI v0.7.2
+// Vimesh UI v0.7.3
 "use strict";
 
 (function (G) {
@@ -89,10 +89,18 @@ $vui.ready(() => {
         }
         return findWrapperComponent(el.parentNode)
     }
-    magic('api', el => {
-        let comp = findWrapperComponent(el)
-        return mergeProxies([comp && comp._vui_api || {}, ...closestDataStack(el)])
-    })
+    function getApiOf(el, filter){
+        const comp = findWrapperComponent(el, filter)
+        if (!comp) return {}
+        const of = {
+            of(type){
+                if (!type) return {}
+                return getApiOf(comp.parentNode, el => el._vui_type === type)
+            }
+        }
+        return mergeProxies([of, comp._vui_api || {}, ...closestDataStack(comp)])
+    }
+    magic('api', el => getApiOf(el))
     magic('prop', el => {
         return (name) => {
             let comp = findWrapperComponent(el)

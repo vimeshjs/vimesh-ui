@@ -21,9 +21,8 @@
     </style>
 </head>
 
-<body x-cloak x-import="counter" class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
-    Rename the 2nd counter : <input type="text" x-model="name" class="rounded-md border-2 border-blue-500">
-    <vui-counter x-data="{step: 1}" :primary="true" title="First" x-init="console.log('This is the first one')" owner-name="Tom"></vui-counter>
-    <vui-counter x-data="{step: 5}" :title="name + ' @ ' + $prop('owner-name')" owner-name="Frank"></vui-counter>
-    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner"></vui-counter>
+<body x-cloak x-import="counter;counter-trigger" class="p-2" >   
+     <vui-counter x-data="{step: 10, value: 1000}">
+        <vui-counter-trigger></vui-counter-trigger>
+     </vui-counter>
 </body>
