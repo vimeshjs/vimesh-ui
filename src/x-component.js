@@ -2,14 +2,16 @@ if (!$vui.setups) $vui.setups = {}
 if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, prefixed, addRootSelector, magic, closestDataStack, mergeProxies, evaluateLater, effect } = Alpine
+    const { directive, prefixed, addRootSelector, magic, closestDataStack, mergeProxies, initTree, evaluateLater, evaluate, effect } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
+    const DEFAULT_NAMESPACE = 'vui'
 
     const DIR_COMP = prefixed('component')
     const DIR_IMPORT = prefixed('import')
     const DIR_DATA = prefixed('data')
     const DIR_INIT = prefixed('init')
+    const allNamespaces = [DEFAULT_NAMESPACE]
 
     let styleElement = document.createElement('style')
     styleElement.setAttribute('id', 'vimesh-ui-component-common-styles')
@@ -18,6 +20,50 @@ $vui.ready(() => {
     [${ATTR_CLOAK}] {display: none !important;}
     `
     document.head.prepend(styleElement)
+    function addNamespace(ns) {
+        if (!ns) return
+        ns = ns.trim()
+        if (allNamespaces.indexOf(ns) === -1)
+            allNamespaces.push(ns)
+    }
+    function getNamespaceFromXcomponent(dirName) {
+        let p1 = dirName.indexOf(':')
+        if (p1 === -1) return DEFAULT_NAMESPACE
+        let p2 = dirName.indexOf('.', p1)
+        return p2 === -1 ? dirName.substring(p1 + 1) : dirName.substring(p1 + 1, p2)
+    }
+    _.each(document.querySelectorAll('*'), el => {
+        _.each(el.attributes, attr => {
+            let name = attr.name
+            if (name.startsWith(DIR_COMP)) {
+                let ns = getNamespaceFromXcomponent(name)
+                addNamespace(ns)
+            } else if (name.startsWith(DIR_IMPORT) && attr.value) {
+                let comps = attr.value.trim()
+                if (comps.startsWith('[') && comps.endsWith(']')) {
+                    comps = evaluate(el, attr.value)
+                } else {
+                    comps = comps.split(';')
+                }
+                _.each(comps, comp => {
+                    let p = comp.indexOf('/')
+                    if (p !== -1) {
+                        let ns = comp.substring(0, p)
+                        addNamespace(ns)
+                    }
+                })
+            }
+        })
+    })
+    _.each(document.querySelectorAll('*'), el => {
+        if (el.tagName) {
+            let p = el.tagName.indexOf('-')
+            let ns = el.tagName.substring(0, p).toLowerCase()
+            if (allNamespaces.indexOf(ns) !== -1) {
+                el.setAttribute(ATTR_CLOAK, '')
+            }
+        }
+    })
     addRootSelector(() => `[${DIR_COMP}]`)
     function findWrapperComponent(el, filter) {
         if (!el) return null
@@ -26,11 +72,11 @@ $vui.ready(() => {
         }
         return findWrapperComponent(el.parentNode)
     }
-    function getApiOf(el, filter){
+    function getApiOf(el, filter) {
         const comp = findWrapperComponent(el, filter)
         if (!comp) return {}
         const of = {
-            of(type){
+            of(type) {
                 if (!type) return {}
                 return getApiOf(comp.parentNode, el => el._vui_type === type)
             }
@@ -49,7 +95,7 @@ $vui.ready(() => {
         if (el.tagName.toLowerCase() !== 'template') {
             return console.warn('x-component can only be used on a <template> tag', el)
         }
-        const namespace = value || $vui.config.namespace || 'vui'
+        const namespace = value || $vui.config.namespace || DEFAULT_NAMESPACE
         const prefixMap = $vui.config.prefixMap || {}
         const prefix = prefixMap[namespace] || namespace
         const compName = `${prefix}-${expression}`
@@ -145,6 +191,7 @@ ${elScript.innerHTML}
                 if (!elComp.hasAttribute(DIR_DATA))
                     elComp.setAttribute(DIR_DATA, '{}')
                 elComp.removeAttribute(ATTR_CLOAK)
+                initTree(elComp)
             }
         }
         customElements.define(compName.toLowerCase(), $vui.components[compName]);
