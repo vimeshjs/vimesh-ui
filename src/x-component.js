@@ -4,7 +4,7 @@ $vui.ready(() => {
     const _ = $vui._
     const { directive, prefixed, addRootSelector, magic,
         closestDataStack, mergeProxies, initTree, evaluateLater,
-        evaluate, effect, nextTick, mutateDom } = Alpine
+        evaluate, effect, nextTick, mutateDom, reactive } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
     const DEFAULT_NAMESPACE = 'vui'
@@ -101,7 +101,7 @@ $vui.ready(() => {
         el.setAttribute(ATTR_CLOAK, '')
         el.setAttribute(DIR_IGNORE, '')
     })
-    addRootSelector(() => `[${DIR_COMP}]`)    
+    addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
     magic('prop', el => {
         return (name) => {
@@ -206,7 +206,7 @@ ${elScript.innerHTML}
                     elComp._vui_namespace = namespace
                     let setup = $vui.setups[compName]
                     if (setup) {
-                        elComp._vui_api = setup(elComp)
+                        elComp._vui_api = reactive(setup(elComp))
                     }
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')

@@ -1,4 +1,4 @@
-// Vimesh UI v0.9.1
+// Vimesh UI v0.9.2
 "use strict";
 
 (function (G) {
@@ -67,7 +67,7 @@ $vui.ready(() => {
     const _ = $vui._
     const { directive, prefixed, addRootSelector, magic,
         closestDataStack, mergeProxies, initTree, evaluateLater,
-        evaluate, effect, nextTick, mutateDom } = Alpine
+        evaluate, effect, nextTick, mutateDom, reactive } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
     const DEFAULT_NAMESPACE = 'vui'
@@ -164,7 +164,7 @@ $vui.ready(() => {
         el.setAttribute(ATTR_CLOAK, '')
         el.setAttribute(DIR_IGNORE, '')
     })
-    addRootSelector(() => `[${DIR_COMP}]`)    
+    addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
     magic('prop', el => {
         return (name) => {
@@ -269,7 +269,7 @@ ${elScript.innerHTML}
                     elComp._vui_namespace = namespace
                     let setup = $vui.setups[compName]
                     if (setup) {
-                        elComp._vui_api = setup(elComp)
+                        elComp._vui_api = reactive(setup(elComp))
                     }
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
@@ -327,7 +327,7 @@ ${elScript.innerHTML}
     if (_.isArray(comps)) {
         const tasks = []
         _.each(comps, comp => {
-            comp = comp.trim()
+            let fullname = comp = comp.trim()
             const urlTpl = importMap['*']
             let url = null
             let pos = comp.indexOf('/')
@@ -347,7 +347,10 @@ ${elScript.innerHTML}
                 }
                 if (url && !$vui.imports[url]) {
                     $vui.imports[url] = true
-                    tasks.push(fetch(url).then(r => r.text()).then(html => {
+                    tasks.push(fetch(url).then(r => {
+                        if (!r.ok) throw Error(`${r.status} (${r.statusText})`)
+                        return r.text()
+                    }).then(html => {
                         const el = document.createElement('div')
                         el._x_ignore = true
                         el.innerHTML = html
@@ -386,14 +389,14 @@ ${elScript.innerHTML}
                                     }
                                 } else {
                                     if ($vui.config.debug)
-                                        console.log(`Imported ${comp} @ ${url}`)
+                                        console.log(`Imported ${fullname} @ ${url}`)
                                     resolve()
                                 }
                             }
                             process(0)
                         })
                     }).catch(ex => {
-                        console.error(`Fails to import ${comp} @ ${url}`, ex)
+                        console.error(`Fails to import ${fullname} @ ${url}`, ex)
                     }))
                 }
             })

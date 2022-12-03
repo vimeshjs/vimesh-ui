@@ -10,7 +10,7 @@ $vui.import = (comps) => {
     if (_.isArray(comps)) {
         const tasks = []
         _.each(comps, comp => {
-            comp = comp.trim()
+            let fullname = comp = comp.trim()
             const urlTpl = importMap['*']
             let url = null
             let pos = comp.indexOf('/')
@@ -30,7 +30,10 @@ $vui.import = (comps) => {
                 }
                 if (url && !$vui.imports[url]) {
                     $vui.imports[url] = true
-                    tasks.push(fetch(url).then(r => r.text()).then(html => {
+                    tasks.push(fetch(url).then(r => {
+                        if (!r.ok) throw Error(`${r.status} (${r.statusText})`)
+                        return r.text()
+                    }).then(html => {
                         const el = document.createElement('div')
                         el._x_ignore = true
                         el.innerHTML = html
@@ -69,14 +72,14 @@ $vui.import = (comps) => {
                                     }
                                 } else {
                                     if ($vui.config.debug)
-                                        console.log(`Imported ${comp} @ ${url}`)
+                                        console.log(`Imported ${fullname} @ ${url}`)
                                     resolve()
                                 }
                             }
                             process(0)
                         })
                     }).catch(ex => {
-                        console.error(`Fails to import ${comp} @ ${url}`, ex)
+                        console.error(`Fails to import ${fullname} @ ${url}`, ex)
                     }))
                 }
             })
