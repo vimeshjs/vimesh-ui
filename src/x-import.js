@@ -65,6 +65,7 @@ $vui.import = (comps) => {
                                         document.body.append(elExecute)
                                         if (!wait) process(i + 1)
                                     } else if (elChild.tagName === 'TEMPLATE') {
+                                        $vui.extractNamespaces(elChild)
                                         $vui.prepareComponents(elChild)
                                         document.body.append(elChild)
                                         process(i + 1)

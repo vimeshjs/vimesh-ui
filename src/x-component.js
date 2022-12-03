@@ -77,35 +77,68 @@ $vui.ready(() => {
         }
         return mergeProxies([of, comp._vui_api || {}, ...closestDataStack(comp)])
     }
-    _.each(document.querySelectorAll('*'), el => {
-        _.each(el.attributes, attr => {
-            let name = attr.name
-            if (name.startsWith(DIR_COMP)) {
-                let ns = getNamespaceFromXcomponent(name)
-                addNamespace(ns)
-            } else if (name.startsWith(DIR_IMPORT) && attr.value) {
-                let comps = attr.value.trim()
-                if (comps.startsWith('[') && comps.endsWith(']')) {
-                    comps = evaluate(el, attr.value)
-                } else {
-                    comps = comps.split(';')
-                }
-                _.each(comps, comp => {
-                    let p = comp.indexOf('/')
-                    if (p !== -1) {
-                        let ns = comp.substring(0, p)
-                        addNamespace(ns)
-                    }
-                })
-            }
+    function getComponentInfo(el){
+        return {
+            prefix: el._vui_prefix,
+            type: el._vui_type,
+            namespace: el._vui_namespace
+        }
+    }
+    function filterComponents(elContainer, filter){
+        if (_.isString(filter)) {
+            let type = filter
+            filter = (info) => type === info.type
+        }
+        let result = []
+        visitComponents(elContainer, (el) => {
+            if (!filter || filter(getComponentInfo(el)))
+                result.push(el) 
         })
-    })
+        return result
+    }
+    $vui.getComponentInfo = getComponentInfo
+    $vui.isComponent = isComponent
+    $vui.visitComponents = visitComponents
+    $vui.filterComponents = filterComponents
+    $vui.getParentComponent = getParentComponent
+    $vui.findWrapperComponent = findWrapperComponent
+    $vui.$api = (el) => getApiOf(el)
+    $vui.$data = Alpine.$data
+    $vui.extractNamespaces = (elContainer) => {
+        _.each([elContainer, ...elContainer.querySelectorAll('*')], el => {
+            if (el.tagName === 'TEMPLATE') {
+                $vui.extractNamespaces(el.content)
+            }
+            _.each(el.attributes, attr => {
+                let name = attr.name
+                if (name.startsWith(DIR_COMP)) {
+                    let ns = getNamespaceFromXcomponent(name)
+                    addNamespace(ns)
+                } else if (name.startsWith(DIR_IMPORT) && attr.value) {
+                    let comps = attr.value.trim()
+                    if (comps.startsWith('[') && comps.endsWith(']')) {
+                        comps = evaluate(el, attr.value)
+                    } else {
+                        comps = comps.split(';')
+                    }
+                    _.each(comps, comp => {
+                        let p = comp.indexOf('/')
+                        if (p !== -1) {
+                            let ns = comp.substring(0, p)
+                            addNamespace(ns)
+                        }
+                    })
+                }
+            })
+        })
+    }
     $vui.prepareComponents = (elContainer) => {
         visitComponents(elContainer, el => {
             el.setAttribute(ATTR_CLOAK, '')
             el.setAttribute(DIR_IGNORE, '')
         })
     }
+    $vui.extractNamespaces(document)
     $vui.prepareComponents(document)
     addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
