@@ -1,4 +1,4 @@
-// Vimesh UI v0.9.4
+// Vimesh UI v0.9.5
 "use strict";
 
 (function (G) {
@@ -140,14 +140,14 @@ $vui.ready(() => {
         }
         return mergeProxies([of, comp._vui_api || {}, ...closestDataStack(comp)])
     }
-    function getComponentInfo(el){
+    function getComponentInfo(el) {
         return {
             prefix: el._vui_prefix,
             type: el._vui_type,
             namespace: el._vui_namespace
         }
     }
-    function filterComponents(elContainer, filter){
+    function filterComponents(elContainer, filter) {
         if (_.isString(filter)) {
             let type = filter
             filter = (info) => type === info.type
@@ -155,7 +155,7 @@ $vui.ready(() => {
         let result = []
         visitComponents(elContainer, (el) => {
             if (!filter || filter(getComponentInfo(el)))
-                result.push(el) 
+                result.push(el)
         })
         return result
     }
@@ -167,6 +167,9 @@ $vui.ready(() => {
     $vui.findWrapperComponent = findWrapperComponent
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
+    $vui.nextTick = Alpine.nextTick
+    $vui.focus = (el, options) => el && el.focus && el.focus(options || { preventScroll: true })
+    $vui.scrollIntoView = (el, options) => el && el.scrollIntoView && el.scrollIntoView(options || { block: 'nearest' })
     $vui.extractNamespaces = (elContainer) => {
         _.each([elContainer, ...elContainer.querySelectorAll('*')], el => {
             if (el.tagName === 'TEMPLATE') {
