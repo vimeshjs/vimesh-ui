@@ -1,4 +1,4 @@
-// Vimesh UI v0.9.2
+// Vimesh UI v0.9.3
 "use strict";
 
 (function (G) {
@@ -117,6 +117,9 @@ $vui.ready(() => {
     function visitComponents(elContainer, callback) {
         _.each(elContainer.querySelectorAll('*'), el => {
             if (isComponent(el)) callback(el)
+            if (el.tagName === 'TEMPLATE') {
+                visitComponents(el.content, callback)
+            }
         })
     }
     function findWrapperComponent(el, filter) {
@@ -160,10 +163,13 @@ $vui.ready(() => {
             }
         })
     })
-    visitComponents(document, el => {
-        el.setAttribute(ATTR_CLOAK, '')
-        el.setAttribute(DIR_IGNORE, '')
-    })
+    $vui.prepareComponents = (elContainer) => {
+        visitComponents(elContainer, el => {
+            el.setAttribute(ATTR_CLOAK, '')
+            el.setAttribute(DIR_IGNORE, '')
+        })
+    }
+    $vui.prepareComponents(document)
     addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
     magic('prop', el => {
@@ -173,6 +179,7 @@ $vui.ready(() => {
             return (comp._x_bindings || {})[name] || Alpine.bound(comp, name)
         }
     })
+
     directive('component', (el, { expression, value, modifiers }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') {
             return console.warn('x-component can only be used on a <template> tag', el)
@@ -382,6 +389,7 @@ ${elScript.innerHTML}
                                         document.body.append(elExecute)
                                         if (!wait) process(i + 1)
                                     } else if (elChild.tagName === 'TEMPLATE') {
+                                        $vui.prepareComponents(elChild)
                                         document.body.append(elChild)
                                         process(i + 1)
                                     } else {
