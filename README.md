@@ -156,7 +156,7 @@ Here is a more complete example:
 > /components/counter.html
 ```html
 <template x-component.unwrap="counter" :class="$prop('primary') ? 'text-red-500' : 'text-blue-500'"
-    x-data="{ step : 1, value: 0}" x-init="$api.init && $api.init()" title="Counter" owner-name="nobody">
+    x-data="{ step : 1, value: 0}" x-init="$api && $api.init()" title="Counter" owner-name="nobody">
     <div>
         <span x-text="$prop('title')"></span><br>
         Owner: <span x-text="$prop('owner-name')"></span><br>
@@ -183,7 +183,7 @@ Here is a more complete example:
 > /components/counter-trigger.html
 ```html
 <template x-component="counter-trigger">
-    <button @click="$api.of('counter').increase()"
+    <button @click="$api.$of('counter').increase()"
         class="inline-block rounded-lg mt-2 bg-green-600 px-4 py-1.5 text-white shadow ring-1 ring-green-600 hover:bg-green-700 hover:ring-green-700">
         Tigger from child element</button>
 </template>
