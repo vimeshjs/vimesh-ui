@@ -59,49 +59,61 @@ $vui.ready(() => {
             }
         })
     }
-    function findWrapperComponent(el, filter) {
+    function findClosestComponent(el, filter) {
         if (!el) return null
         if (el._vui_type) {
+            if (_.isString(filter)) {
+                let type = filter
+                filter = (el) => el._vui_type === type
+            }
             if (!filter || filter(el)) return el
         }
-        return findWrapperComponent(el.parentNode)
+        return findClosestComponent(el.parentNode, filter)
     }
     function getApiOf(el, filter) {
-        const comp = findWrapperComponent(el, filter)
-        if (!comp) return {}
-        const of = {
-            of(type) {
-                if (!type) return {}
+        const comp = findClosestComponent(el, filter)
+        if (!comp) return null
+        const baseApis = {
+            $of(type) {
+                if (!type) return null
                 return getApiOf(comp.parentNode, el => el._vui_type === type)
+            },
+            get $meta() { return getComponentMeta(this.$el) },
+            get $parent() { return getParentComponent(this.$el) },
+            $closest(filter) { return findClosestComponent(this.$el, filter) },
+            $find(filter) { return findChildComponents(this.$el, filter) },
+            $findOne(filter) { 
+                let comps = findChildComponents(this.$el, filter) 
+                return comps.length > 0 ? comps[0] : null
             }
         }
-        return mergeProxies([of, comp._vui_api || {}, ...closestDataStack(comp)])
+        return mergeProxies([baseApis, comp._vui_api || {}, ...closestDataStack(comp)])
     }
-    function getComponentInfo(el) {
+    function getComponentMeta(el) {
         return {
             prefix: el._vui_prefix,
             type: el._vui_type,
             namespace: el._vui_namespace
         }
     }
-    function filterComponents(elContainer, filter) {
+    function findChildComponents(elContainer, filter) {
         if (_.isString(filter)) {
             let type = filter
-            filter = (info) => type === info.type
+            filter = (el) => el._vui_type === type
         }
         let result = []
         visitComponents(elContainer, (el) => {
-            if (!filter || filter(getComponentInfo(el)))
+            if (!filter || filter(el))
                 result.push(el)
         })
         return result
     }
-    $vui.getComponentInfo = getComponentInfo
+    $vui.getComponentMeta = getComponentMeta
     $vui.isComponent = isComponent
     $vui.visitComponents = visitComponents
-    $vui.filterComponents = filterComponents
+    $vui.findChildComponents = findChildComponents
     $vui.getParentComponent = getParentComponent
-    $vui.findWrapperComponent = findWrapperComponent
+    $vui.findClosestComponent = findClosestComponent
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
     $vui.nextTick = Alpine.nextTick
@@ -147,7 +159,7 @@ $vui.ready(() => {
     magic('api', el => getApiOf(el))
     magic('prop', el => {
         return (name) => {
-            let comp = findWrapperComponent(el)
+            let comp = findClosestComponent(el)
             if (!comp) return null
             return (comp._x_bindings || {})[name] || Alpine.bound(comp, name)
         }
@@ -289,7 +301,7 @@ ${elScript.innerHTML}
             attributeChangedCallback(name, oldValue, newValue) {
                 if (this._vui_api) {
                     let api = getApiOf(this)
-                    if (api.onUnmounted) api.onAttributeChanged(name, oldValue, newValue)
+                    if (api.onAttributeChanged) api.onAttributeChanged(name, oldValue, newValue)
                 }
             }
         }
