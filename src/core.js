@@ -14,8 +14,8 @@
         }
     }
     const initAt = new Date()
-    const _ = G.$vui._ = {    
-        elapse(){
+    const _ = G.$vui._ = {
+        elapse() {
             return new Date() - initAt
         },
         isString(str) {
@@ -41,6 +41,16 @@
                     callback(val, key, index)
                 })
             }
+        },
+        map(objOrArray, callback) {
+            let result = []
+            _.each(objOrArray, (val, key, index) => result.push(callback(val, key, index)))
+            return result
+        },
+        filter(objOrArray, callback) {
+            let result = []
+            _.each(objOrArray, (val, key, index) => callback(val, key, index) && result.push(val))
+            return result
         },
         extend(target, ...sources) {
             const length = sources.length

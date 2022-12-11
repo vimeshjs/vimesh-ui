@@ -158,10 +158,10 @@ $vui.ready(() => {
     addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
     magic('prop', el => {
-        return (name) => {
+        return (name, fallback) => {
             let comp = findClosestComponent(el)
             if (!comp) return null
-            return (comp._x_bindings || {})[name] || Alpine.bound(comp, name)
+            return Alpine.bound(comp, name, fallback)
         }
     })
 

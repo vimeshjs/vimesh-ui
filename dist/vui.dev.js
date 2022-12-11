@@ -1,4 +1,4 @@
-// Vimesh UI v0.9.7
+// Vimesh UI v0.9.8
 "use strict";
 
 (function (G) {
@@ -15,8 +15,8 @@
         }
     }
     const initAt = new Date()
-    const _ = G.$vui._ = {    
-        elapse(){
+    const _ = G.$vui._ = {
+        elapse() {
             return new Date() - initAt
         },
         isString(str) {
@@ -42,6 +42,16 @@
                     callback(val, key, index)
                 })
             }
+        },
+        map(objOrArray, callback) {
+            let result = []
+            _.each(objOrArray, (val, key, index) => result.push(callback(val, key, index)))
+            return result
+        },
+        filter(objOrArray, callback) {
+            let result = []
+            _.each(objOrArray, (val, key, index) => callback(val, key, index) && result.push(val))
+            return result
         },
         extend(target, ...sources) {
             const length = sources.length
@@ -221,10 +231,10 @@ $vui.ready(() => {
     addRootSelector(() => `[${DIR_COMP}]`)
     magic('api', el => getApiOf(el))
     magic('prop', el => {
-        return (name) => {
+        return (name, fallback) => {
             let comp = findClosestComponent(el)
             if (!comp) return null
-            return (comp._x_bindings || {})[name] || Alpine.bound(comp, name)
+            return Alpine.bound(comp, name, fallback)
         }
     })
 
