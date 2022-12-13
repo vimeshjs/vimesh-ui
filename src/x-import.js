@@ -11,14 +11,24 @@ $vui.import = (comps) => {
         const tasks = []
         _.each(comps, comp => {
             let fullname = comp = comp.trim()
-            const urlTpl = importMap['*']
+            let urlTpl = importMap['*']
             let url = null
-            let pos = comp.indexOf('/')
-            let namespace = pos === -1 ? '' : comp.substring(0, pos)
-            if (pos !== -1) comp = comp.substring(pos + 1)
+            let namespace = ''
+            let pos = comp.indexOf(':')
+            if (pos !== -1) {
+                namespace = comp.substring(0, pos)
+                comp = comp.substring(pos + 1)
+                if (namespace) $vui.addNamespace(namespace)
+            }
+            pos = comp.lastIndexOf('/')
+            let path = ''
+            if (pos !== -1) {
+                path = comp.substring(0, pos + 1)
+                comp = comp.substring(pos + 1)
+            }
             _.each(comp.split(','), component => {
                 component = component.trim()
-                let compInfo = { namespace, component, full: `${namespace ? namespace + '/' : ''}${component}` }
+                let compInfo = { path, namespace, component }
                 if (compInfo.namespace && importMap[compInfo.namespace])
                     urlTpl = importMap[compInfo.namespace]
                 try {

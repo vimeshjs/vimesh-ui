@@ -1,4 +1,4 @@
-// Vimesh UI v0.9.8
+// Vimesh UI v0.10.0
 "use strict";
 
 (function (G) {
@@ -155,8 +155,8 @@ $vui.ready(() => {
             get $parent() { return getParentComponent(this.$el) },
             $closest(filter) { return findClosestComponent(this.$el, filter) },
             $find(filter) { return findChildComponents(this.$el, filter) },
-            $findOne(filter) { 
-                let comps = findChildComponents(this.$el, filter) 
+            $findOne(filter) {
+                let comps = findChildComponents(this.$el, filter)
                 return comps.length > 0 ? comps[0] : null
             }
         }
@@ -181,6 +181,7 @@ $vui.ready(() => {
         })
         return result
     }
+    $vui.addNamespace = addNamespace
     $vui.getComponentMeta = getComponentMeta
     $vui.isComponent = isComponent
     $vui.visitComponents = visitComponents
@@ -393,14 +394,24 @@ ${elScript.innerHTML}
         const tasks = []
         _.each(comps, comp => {
             let fullname = comp = comp.trim()
-            const urlTpl = importMap['*']
+            let urlTpl = importMap['*']
             let url = null
-            let pos = comp.indexOf('/')
-            let namespace = pos === -1 ? '' : comp.substring(0, pos)
-            if (pos !== -1) comp = comp.substring(pos + 1)
+            let namespace = ''
+            let pos = comp.indexOf(':')
+            if (pos !== -1) {
+                namespace = comp.substring(0, pos)
+                comp = comp.substring(pos + 1)
+                if (namespace) $vui.addNamespace(namespace)
+            }
+            pos = comp.lastIndexOf('/')
+            let path = ''
+            if (pos !== -1) {
+                path = comp.substring(0, pos + 1)
+                comp = comp.substring(pos + 1)
+            }
             _.each(comp.split(','), component => {
                 component = component.trim()
-                let compInfo = { namespace, component, full: `${namespace ? namespace + '/' : ''}${component}` }
+                let compInfo = { path, namespace, component }
                 if (compInfo.namespace && importMap[compInfo.namespace])
                     urlTpl = importMap[compInfo.namespace]
                 try {

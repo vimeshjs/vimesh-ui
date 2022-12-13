@@ -82,8 +82,8 @@ $vui.ready(() => {
             get $parent() { return getParentComponent(this.$el) },
             $closest(filter) { return findClosestComponent(this.$el, filter) },
             $find(filter) { return findChildComponents(this.$el, filter) },
-            $findOne(filter) { 
-                let comps = findChildComponents(this.$el, filter) 
+            $findOne(filter) {
+                let comps = findChildComponents(this.$el, filter)
                 return comps.length > 0 ? comps[0] : null
             }
         }
@@ -108,6 +108,7 @@ $vui.ready(() => {
         })
         return result
     }
+    $vui.addNamespace = addNamespace
     $vui.getComponentMeta = getComponentMeta
     $vui.isComponent = isComponent
     $vui.visitComponents = visitComponents
