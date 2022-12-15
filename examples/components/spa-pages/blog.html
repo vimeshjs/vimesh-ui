@@ -1,0 +1,9 @@
+<template x-component:page="blog" x-import="cms/article">
+    <div>
+        <h1>Blog Page</span></h1>
+        <vui-article title="My Blog">This is the content of blog <span x-text="$route.params.id"></span></vui-article>
+    </div>
+    <div>
+        Back <a href="#/welcome">Home</a>
+    </div>
+</template>

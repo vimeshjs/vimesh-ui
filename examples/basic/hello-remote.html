@@ -1,13 +1,9 @@
 <head>
-    <title>Blog</title>
-    
     <script src="https://unpkg.com/@vimesh/ui"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
-
     <script>
         $vui.config.importMap = {
-            "*": './components/${path}${component}.html',
-            "page": './components/pages/${component}.html'
+            "*": '../components/${component}.html'
         }
     </script>
     <style>
@@ -17,8 +13,6 @@
     </style>
 </head>
 
-<body x-cloak x-import="header,footer;cms/article;page:blog">
-    <vui-header></vui-header>
-    <page-blog></page-blog>
-    <vui-footer></vui-footer>
+<body x-cloak x-import="greeting">
+    <vui-greeting>Vimesh UI</vui-greeting>
 </body>

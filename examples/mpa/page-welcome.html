@@ -1,9 +1,13 @@
 <head>
+    <title>Welcome</title>
+
     <script src="https://unpkg.com/@vimesh/ui"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
+
     <script>
         $vui.config.importMap = {
-            "*": './components/${component}.html'
+            "*": '../components/${path}${component}.html',
+            "page": '../components/mpa-pages/${component}.html'
         }
     </script>
     <style>
@@ -13,6 +17,8 @@
     </style>
 </head>
 
-<body x-cloak x-import="greeting">
-    <vui-greeting>Vimesh UI</vui-greeting>
+<body x-cloak x-import="header,footer;page:welcome">
+    <vui-header></vui-header>
+    <page-welcome></page-welcome>
+    <vui-footer></vui-footer>
 </body>
