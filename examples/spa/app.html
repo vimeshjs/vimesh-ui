@@ -35,7 +35,8 @@
         <script>
             return {
                 router: null,
-                get pageContent() { return `<${this.currentPage} x-import="${this.currentPage.replace('-', ':')}"></${this.currentPage}>` },
+                get pageToImport() { return this.currentPage.replace('-', ':') },
+                get pageContent() { return `<${this.currentPage} x-import="${this.pageToImport}"></${this.currentPage}>` },
                 onUrlChange() {
                     let match = window.location.href.match(/#(.*)$/)
                     let fragment = match ? match[1] : ''
