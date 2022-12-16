@@ -35,13 +35,12 @@
         <script>
             return {
                 router: null,
-                get pageContent() { return `<${this.currentPage}></${this.currentPage}>` },
+                get pageContent() { return `<${this.currentPage} x-import="${this.currentPage.replace('-', ':')}"></${this.currentPage}>` },
                 onUrlChange() {
                     let match = window.location.href.match(/#(.*)$/)
                     let fragment = match ? match[1] : ''
                     this.router.resolve({ pathname: fragment }).then(result => {
                         this.currentPage = result
-                        $vui.import(result.replace('-', ':'))
                     })
                 },
                 onMounted() {
