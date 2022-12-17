@@ -220,10 +220,10 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
 ## $api for component
 `x-data` is very convenient to use. Its data is accessible to all descendant elements. There is no problems for simple static web page. When developping reusable components, `x-data` is too open to store component own states. We do not want the properties to be modified occasionally just because of name confliction. `$api` allows to define **private** properties and methods. `$api` is only available to current component. At the same time, it inherets from x-data. That means if `this.somePropOrMethod` does not exist in $api, it will check `somePropOrMethod` from x-data. `$api` has some predefined properties and methods:
 
-| Property      | Description |
+| Properties     | Description |
 | ----------- | ----------- |
 | $meta      | Get the meta info of current component, including type, namespace, prefix.       |
-| $parent   | Get the closest parent component html element        |
+| $parent   | Get the closest parent component element        |
 
 | Methods      | Description |
 | ----------- | ----------- |
@@ -232,7 +232,7 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
 | $find(filter)   | Find all descendant component element according to the filter, which could be component type or a function         |
 | $findOne(filter)   | It is similar to $find, but only return the first component element match the filter        |
 
-## Multi page application
+## Multi pages application
 Check [mpa example](/examples/mpa)
 
 

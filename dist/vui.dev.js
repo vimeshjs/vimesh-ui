@@ -1,4 +1,4 @@
-// Vimesh UI v0.10.3
+// Vimesh UI v0.10.4
 "use strict";
 
 (function (G) {
@@ -109,6 +109,7 @@ $vui.ready(() => {
         return p2 === -1 ? dirName.substring(p1 + 1) : dirName.substring(p1 + 1, p2)
     }
     function isComponent(el) {
+        if (el._vui_type) return true
         if (el.tagName) {
             let p = el.tagName.indexOf('-')
             if (p === -1) return false
@@ -191,6 +192,7 @@ $vui.ready(() => {
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
     $vui.nextTick = Alpine.nextTick
+    $vui.effect = Alpine.effect
     $vui.focus = (el, options) => el && el.focus && el.focus(options || { preventScroll: true })
     $vui.scrollIntoView = (el, options) => el && el.scrollIntoView && el.scrollIntoView(options || { block: 'nearest' })
     $vui.extractNamespaces = (elContainer) => {
