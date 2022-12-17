@@ -1,4 +1,4 @@
-// Vimesh UI v0.10.4
+// Vimesh UI v0.10.5
 "use strict";
 
 (function (G) {
@@ -126,11 +126,10 @@ $vui.ready(() => {
         return getParentComponent(el.parentNode)
     }
     function visitComponents(elContainer, callback) {
+        if (elContainer.tagName === 'TEMPLATE')
+            return visitComponents(elContainer.content, callback)
         _.each(elContainer.querySelectorAll('*'), el => {
             if (isComponent(el)) callback(el)
-            if (el.tagName === 'TEMPLATE') {
-                visitComponents(el.content, callback)
-            }
         })
     }
     function findClosestComponent(el, filter) {
@@ -191,6 +190,12 @@ $vui.ready(() => {
     $vui.findClosestComponent = findClosestComponent
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
+    $vui.setHtml = (el, html) => {
+        el.innerHTML = html
+        el._x_ignoreSelf = true
+        initTree(el)
+        delete el._x_ignoreSelf
+    }
     $vui.nextTick = Alpine.nextTick
     $vui.effect = Alpine.effect
     $vui.focus = (el, options) => el && el.focus && el.focus(options || { preventScroll: true })
@@ -208,7 +213,8 @@ $vui.ready(() => {
                 } else if (name.startsWith(DIR_IMPORT) && attr.value) {
                     let comps = attr.value.trim()
                     if (comps.startsWith('[') && comps.endsWith(']')) {
-                        comps = evaluate(el, attr.value)
+                        //comps = evaluate(el, attr.value)
+                        return
                     } else {
                         comps = comps.split(';')
                     }
@@ -294,13 +300,6 @@ ${elScript.innerHTML}
                 mutateDom(() => {
                     const slotContents = {}
                     const defaultSlotContent = []
-                    _.each(this.querySelectorAll(`[${prefixed('for')}]`), elFor => {
-                        if (elFor._x_lookup) {
-                            Object.values(elFor._x_lookup).forEach(el => el.remove())
-                            delete el._x_prevKeys
-                            delete el._x_lookup
-                        }
-                    })
                     _.each(this.childNodes, elChild => {
                         if (elChild.tagName && elChild.hasAttribute('slot')) {
                             let slotName = elChild.getAttribute('slot') || ''
@@ -395,6 +394,7 @@ ${elScript.innerHTML}
     if (_.isArray(comps)) {
         const tasks = []
         _.each(comps, comp => {
+            if (!comp) return
             let fullname = comp = comp.trim()
             let urlTpl = importMap['*']
             let url = null

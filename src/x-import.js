@@ -10,6 +10,7 @@ $vui.import = (comps) => {
     if (_.isArray(comps)) {
         const tasks = []
         _.each(comps, comp => {
+            if (!comp) return
             let fullname = comp = comp.trim()
             let urlTpl = importMap['*']
             let url = null
