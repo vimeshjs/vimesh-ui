@@ -232,6 +232,12 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
 | $find(filter)   | Find all descendant component element according to the filter, which could be component type or a function         |
 | $findOne(filter)   | It is similar to $find, but only return the first component element match the filter        |
 
+`x-data` has two lifecycle hooks: init and destroy. `$api` has equivalents:
+| x-data     | $api |
+| ----------- | ----------- |
+| init()      | onMounted()   |
+| destroy()   | onUnmounted()    |
+
 ## Multi pages application
 Check [mpa example](/examples/mpa)
 
