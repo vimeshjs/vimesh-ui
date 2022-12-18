@@ -3,8 +3,7 @@ if (!$vui.components) $vui.components = {}
 $vui.ready(() => {
     const _ = $vui._
     const { directive, prefixed, addRootSelector, magic,
-        closestDataStack, mergeProxies, initTree, evaluateLater,
-        evaluate, effect, nextTick, mutateDom, reactive } = Alpine
+        closestDataStack, mergeProxies, initTree, mutateDom, reactive } = Alpine
     const ATTR_UI = 'v-ui'
     const ATTR_CLOAK = 'v-cloak'
     const DEFAULT_NAMESPACE = 'vui'
@@ -57,6 +56,8 @@ $vui.ready(() => {
             return visitComponents(elContainer.content, callback)
         _.each(elContainer.querySelectorAll('*'), el => {
             if (isComponent(el)) callback(el)
+            if (el.tagName === 'TEMPLATE')
+                return visitComponents(el.content, callback)
         })
     }
     function findClosestComponent(el, filter) {
@@ -118,10 +119,12 @@ $vui.ready(() => {
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
     $vui.setHtml = (el, html) => {
-        el.innerHTML = html
-        el._x_ignoreSelf = true
-        initTree(el)
-        delete el._x_ignoreSelf
+        const elTemp = document.createElement('div')
+        elTemp._x_ignore = true
+        elTemp.innerHTML = html
+        $vui.extractNamespaces(elTemp)
+        $vui.prepareComponents(elTemp)
+        el.innerHTML = elTemp.innerHTML
     }
     $vui.nextTick = Alpine.nextTick
     $vui.effect = Alpine.effect
@@ -267,23 +270,26 @@ ${elScript.innerHTML}
                     }
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
-                    elComp.removeAttribute(ATTR_CLOAK)
-                    elComp.removeAttribute(DIR_IGNORE)
-                    delete elComp._x_ignore
+                        
                     let elParentComp = getParentComponent(elComp)
                     if (!elParentComp || elParentComp._vui_type) {
-                        initTree(elComp)
-                        if (elComp._vui_api) {
-                            let api = getApiOf(elComp)
-                            if (api.onMounted) api.onMounted()
-                        }
-                        _.each(elComp._vui_deferred_elements, el => {
-                            if (el._vui_api) {
-                                let api = getApiOf(el)
+                        queueMicrotask(() => {
+                            elComp.removeAttribute(ATTR_CLOAK)
+                            elComp.removeAttribute(DIR_IGNORE)
+                            delete elComp._x_ignore
+                            initTree(elComp)
+                            if (elComp._vui_api) {
+                                let api = getApiOf(elComp)
                                 if (api.onMounted) api.onMounted()
                             }
+                            _.each(elComp._vui_deferred_elements, el => {
+                                if (el._vui_api) {
+                                    let api = getApiOf(el)
+                                    if (api.onMounted) api.onMounted()
+                                }
+                            })
+                            delete elComp._vui_deferred_elements
                         })
-                        delete elComp._vui_deferred_elements
                     } else {
                         // wait for parent component to be mounted
                         if (!elParentComp._vui_deferred_elements)
@@ -291,6 +297,11 @@ ${elScript.innerHTML}
                         elParentComp._vui_deferred_elements.push(elComp)
                         if (elComp._vui_deferred_elements)
                             elParentComp._vui_deferred_elements.push(...elComp._vui_deferred_elements)
+                        queueMicrotask(() => {
+                            elComp.removeAttribute(ATTR_CLOAK)
+                            elComp.removeAttribute(DIR_IGNORE)
+                            delete elComp._x_ignore
+                        })
                     }
                 })
             }
