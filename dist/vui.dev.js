@@ -1,4 +1,4 @@
-// Vimesh UI v0.10.6
+// Vimesh UI v0.10.7
 "use strict";
 
 (function (G) {
@@ -450,6 +450,9 @@ ${elScript.innerHTML}
                                     const elChild = all[i]
                                     elChild.remove()
                                     if (elChild.tagName === 'SCRIPT') {
+                                        if (elChild.hasAttribute('use-meta')) {
+                                            elChild.innerHTML = `const __import_meta__ = ${JSON.stringify({ html, url, ...compInfo })}\r\n` + elChild.innerHTML
+                                        }
                                         const elExecute = document.createElement("script")
                                         const wait = elChild.src && !elChild.async
                                         if (wait) {
