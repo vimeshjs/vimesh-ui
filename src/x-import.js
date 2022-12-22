@@ -54,7 +54,10 @@ $vui.import = (comps) => {
                                 if (i < all.length) {
                                     const elChild = all[i]
                                     elChild.remove()
-                                    if (elChild.tagName === 'SCRIPT') {
+                                    if (elChild.tagName === 'LINK') {
+                                        document.head.append(elChild)
+                                        process(i + 1)
+                                    } else if (elChild.tagName === 'SCRIPT') {
                                         if (elChild.hasAttribute('use-meta')) {
                                             elChild.innerHTML = `const __import_meta__ = ${JSON.stringify({ html, url, ...compInfo })}\r\n` + elChild.innerHTML
                                         }
