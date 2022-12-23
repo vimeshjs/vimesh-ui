@@ -1,4 +1,4 @@
-// Vimesh UI v0.10.8
+// Vimesh UI v0.11.0
 "use strict";
 
 (function (G) {
@@ -250,6 +250,15 @@ $vui.ready(() => {
         }
     })
 
+    directive('shtml', (el, { expression }, { effect, evaluateLater }) => {
+        let evaluate = evaluateLater(expression)
+        effect(() => {
+            evaluate(value => {
+                $vui.setHtml(el, value)
+            })
+        })
+    })
+
     directive('component', (el, { expression, value, modifiers }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') {
             return console.warn('x-component can only be used on a <template> tag', el)
@@ -275,8 +284,7 @@ ${elScript.innerHTML}
         }
         function copyAttributes(elFrom, elTo) {
             _.each(elFrom.attributes, attr => {
-                if (DIR_COMP === attr.name || attr.name.startsWith(DIR_COMP) ||
-                    DIR_IMPORT === attr.name || attr.name.startsWith(DIR_IMPORT)) return
+                if (DIR_COMP === attr.name || attr.name.startsWith(DIR_COMP)) return
                 try {
                     let name = attr.name
                     if (name.startsWith('@'))
@@ -343,7 +351,7 @@ ${elScript.innerHTML}
                     }
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
-                        
+
                     let elParentComp = getParentComponent(elComp)
                     if (!elParentComp || elParentComp._vui_type) {
                         queueMicrotask(() => {
@@ -394,6 +402,7 @@ ${elScript.innerHTML}
         customElements.define(compName.toLowerCase(), $vui.components[compName]);
     })
 });$vui.import = (comps) => {
+    if (!comps) return
     const _ = $vui._
     const importMap = $vui.config.importMap
     if (!importMap || !importMap['*'])
@@ -424,7 +433,7 @@ ${elScript.innerHTML}
             }
             _.each(comp.split(','), component => {
                 component = component.trim()
-                let compInfo = { path, namespace, component }
+                let compInfo = { path, namespace, component, fullname: `${namespace ? namespace + ':' : ''}${path}${component}` }
                 if (compInfo.namespace && importMap[compInfo.namespace])
                     urlTpl = importMap[compInfo.namespace]
                 try {
@@ -435,7 +444,8 @@ ${elScript.innerHTML}
                     return
                 }
                 if (url && !$vui.imports[url]) {
-                    $vui.imports[url] = true
+                    let importMeta = { url, ...compInfo }
+                    $vui.imports[url] = importMeta
                     tasks.push(fetch(url).then(r => {
                         if (!r.ok) throw Error(`${r.status} (${r.statusText})`)
                         return r.text()
@@ -443,6 +453,7 @@ ${elScript.innerHTML}
                         const el = document.createElement('div')
                         el._x_ignore = true
                         el.innerHTML = html
+                        importMeta.html = html
                         let all = [...el.childNodes]
                         return new Promise((resolve) => {
                             const process = (i) => {
@@ -454,7 +465,7 @@ ${elScript.innerHTML}
                                         process(i + 1)
                                     } else if (elChild.tagName === 'SCRIPT') {
                                         if (elChild.hasAttribute('use-meta')) {
-                                            elChild.innerHTML = `const __import_meta__ = ${JSON.stringify({ html, url, ...compInfo })}\r\n` + elChild.innerHTML
+                                            elChild.innerHTML = `const __import_meta__ = ${JSON.stringify(importMeta)}\r\n` + elChild.innerHTML
                                         }
                                         const elExecute = document.createElement("script")
                                         const wait = elChild.src && !elChild.async
@@ -500,25 +511,24 @@ ${elScript.innerHTML}
         })
         return Promise.all(tasks)
     } else {
-        return Promise.reject(`Fails to import ${comp} !`)
+        return Promise.reject(`Fails to import ${comps} !`)
     }
 }
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    const { directive, prefixed, addRootSelector } = Alpine
     addRootSelector(() => `[${prefixed('import')}]`)
-    directive('import', (el, { expression }, { cleanup }) => {
+    directive('import', (el, { expression, value }, { effect, evaluateLater }) => {
         if (!expression) return
-        let comps = expression.trim()
-        if (comps.startsWith('[') && comps.endsWith(']')) {
-            let evaluate = evaluateLater(el, expression)
-            effect(() => evaluate(value => {
-                if (_.isArray(value)) {
-                    $vui.import(value)
-                }
-            }))
+        if (value) {
+            if (value === 'dynamic' || value === 'dyn') {
+                let evaluate = evaluateLater(expression)
+                effect(() => evaluate(val => $vui.import(val)))
+            } else {
+                console.error(`${prefixed('import')}:${value} is not allowed!`)
+            }
         } else {
-            $vui.import(comps.split(';'))
+            $vui.import(expression.split(';'))
         }
     })
 });$vui.include = (elHost, urls) => {
@@ -598,16 +608,16 @@ $vui.ready(() => {
 }
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    const { directive, prefixed, addRootSelector } = Alpine
     addRootSelector(() => `[${prefixed('include')}]`)
-    directive('include', (el, { expression, modifiers }, { cleanup }) => {
+    directive('include', (el, { expression, modifiers }, { effect, evaluateLater }) => {
         if (!expression) return
         el._vui_unwrap = modifiers.includes('unwrap')
         let urls = expression.trim()
         if (urls.startsWith('.') || urls.startsWith('/') || urls.startsWith('http://') || urls.startsWith('https://')) {
             $vui.include(el, [urls])
         } else {
-            let evaluate = evaluateLater(el, expression)
+            let evaluate = evaluateLater(expression)
             effect(() => evaluate(value => {
                 if (_.isArray(value)) {
                     $vui.include(el, value)

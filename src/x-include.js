@@ -75,16 +75,16 @@ $vui.include = (elHost, urls) => {
 }
 $vui.ready(() => {
     const _ = $vui._
-    const { directive, evaluateLater, effect, prefixed, addRootSelector } = Alpine
+    const { directive, prefixed, addRootSelector } = Alpine
     addRootSelector(() => `[${prefixed('include')}]`)
-    directive('include', (el, { expression, modifiers }, { cleanup }) => {
+    directive('include', (el, { expression, modifiers }, { effect, evaluateLater }) => {
         if (!expression) return
         el._vui_unwrap = modifiers.includes('unwrap')
         let urls = expression.trim()
         if (urls.startsWith('.') || urls.startsWith('/') || urls.startsWith('http://') || urls.startsWith('https://')) {
             $vui.include(el, [urls])
         } else {
-            let evaluate = evaluateLater(el, expression)
+            let evaluate = evaluateLater(expression)
             effect(() => evaluate(value => {
                 if (_.isArray(value)) {
                     $vui.include(el, value)

@@ -177,6 +177,15 @@ $vui.ready(() => {
         }
     })
 
+    directive('shtml', (el, { expression }, { effect, evaluateLater }) => {
+        let evaluate = evaluateLater(expression)
+        effect(() => {
+            evaluate(value => {
+                $vui.setHtml(el, value)
+            })
+        })
+    })
+
     directive('component', (el, { expression, value, modifiers }, { cleanup }) => {
         if (el.tagName.toLowerCase() !== 'template') {
             return console.warn('x-component can only be used on a <template> tag', el)
@@ -202,8 +211,7 @@ ${elScript.innerHTML}
         }
         function copyAttributes(elFrom, elTo) {
             _.each(elFrom.attributes, attr => {
-                if (DIR_COMP === attr.name || attr.name.startsWith(DIR_COMP) ||
-                    DIR_IMPORT === attr.name || attr.name.startsWith(DIR_IMPORT)) return
+                if (DIR_COMP === attr.name || attr.name.startsWith(DIR_COMP)) return
                 try {
                     let name = attr.name
                     if (name.startsWith('@'))
@@ -270,7 +278,7 @@ ${elScript.innerHTML}
                     }
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
-                        
+
                     let elParentComp = getParentComponent(elComp)
                     if (!elParentComp || elParentComp._vui_type) {
                         queueMicrotask(() => {

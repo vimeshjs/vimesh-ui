@@ -1,6 +1,6 @@
 <head>
     <title>Welcome</title>
-
+    
     <script src="https://unpkg.com/@vimesh/ui"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/universal-router/universal-router.min.js"></script>
@@ -14,9 +14,9 @@
             currentPage: 'page-welcome',
             $route: {},
             routes: [
-                { path: '/welcome', action: 'page-welcome' },
-                { path: '/blog/:id', action: 'page-blog' },
-                { path: '(.*)', action: 'page-welcome' }
+                { path: '/welcome', component: 'page-welcome' },
+                { path: '/blog/:id', component: 'page-blog' },
+                { path: '(.*)', component: 'page-welcome' }
             ]
         }
     </script>
@@ -31,17 +31,24 @@
     <vui-header></vui-header>
     <vui-router-view></vui-router-view>
     <vui-footer></vui-footer>
-    <template x-component="router-view" x-html="$api && $api.pageContent">
+    <template x-component="router-view" x-shtml="$api && $api.pageContent || ''"
+        x-import:dynamic="$api && $api.pageToImport">
         <script>
             return {
                 router: null,
-                get pageToImport() { return this.currentPage.replace('-', ':') },
-                get pageContent() { return `<${this.currentPage} x-import="${this.pageToImport}"></${this.currentPage}>` },
+                pageContent: '',
+                pageToImport: null,
                 onUrlChange() {
                     let match = window.location.href.match(/#(.*)$/)
                     let fragment = match ? match[1] : ''
-                    this.router.resolve({ pathname: fragment }).then(result => {
-                        this.currentPage = result
+                    this.router.resolve({ pathname: fragment }).then(component => {
+                        if (component) {
+                            let pos = component.indexOf('@')
+                            let from = pos !== -1 ? component.substring(pos + 1) : component.replace('-', ':').replace('-', '/')
+                            if (pos !== -1) component = component.substring(0, pos)
+                            this.pageToImport = from
+                            this.pageContent = `<${component}></${component}>`
+                        }
                     })
                 },
                 onMounted() {
@@ -52,7 +59,7 @@
                             if (typeof context.route.action === 'function') {
                                 return context.route.action(context, params)
                             }
-                            return context.route.action
+                            return context.route.component
                         }
                     })
                     this.onUrlChange()
