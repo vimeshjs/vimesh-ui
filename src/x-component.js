@@ -149,7 +149,7 @@ $vui.ready(() => {
                         comps = comps.split(';')
                     }
                     _.each(comps, comp => {
-                        let p = comp.indexOf('/')
+                        let p = comp.indexOf(':')
                         if (p !== -1) {
                             let ns = comp.substring(0, p)
                             addNamespace(ns)
@@ -165,6 +165,9 @@ $vui.ready(() => {
             el.setAttribute(DIR_IGNORE, '')
         })
     }
+    _.each($vui.config.importMap, (v, k) => {
+        if (k !== '*') $vui.addNamespace(k)
+    })
     $vui.extractNamespaces(document)
     $vui.prepareComponents(document)
     addRootSelector(() => `[${DIR_COMP}]`)

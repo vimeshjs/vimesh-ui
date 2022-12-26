@@ -2,8 +2,8 @@ $vui.import = (comps) => {
     if (!comps) return
     const _ = $vui._
     const importMap = $vui.config.importMap
-    if (!importMap || !importMap['*'])
-        return Promise.reject('You must setup import url template for the fallback namespace "*"')
+    //if (!importMap || !importMap['*'])
+    //    return Promise.reject('You must setup import url template for the fallback namespace "*"')
 
     if (!$vui.imports) $vui.imports = {}
     if (!$vui.importScriptIndex) $vui.importScriptIndex = 1
@@ -33,6 +33,9 @@ $vui.import = (comps) => {
                 let compInfo = { path, namespace, component, fullname: `${namespace ? namespace + ':' : ''}${path}${component}` }
                 if (compInfo.namespace && importMap[compInfo.namespace])
                     urlTpl = importMap[compInfo.namespace]
+                if (!urlTpl){
+                    return console.error(`Url template for namespace '${compInfo.namespace}' is not defined!`)
+                }
                 try {
                     const parse = new Function("data", "with (data){return `" + urlTpl + "`}")
                     url = parse(compInfo)
