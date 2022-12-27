@@ -1,4 +1,4 @@
-// Vimesh UI v0.11.0
+// Vimesh UI v0.12.0
 "use strict";
 
 (function (G) {
@@ -222,7 +222,7 @@ $vui.ready(() => {
                         comps = comps.split(';')
                     }
                     _.each(comps, comp => {
-                        let p = comp.indexOf('/')
+                        let p = comp.indexOf(':')
                         if (p !== -1) {
                             let ns = comp.substring(0, p)
                             addNamespace(ns)
@@ -238,6 +238,9 @@ $vui.ready(() => {
             el.setAttribute(DIR_IGNORE, '')
         })
     }
+    _.each($vui.config.importMap, (v, k) => {
+        if (k !== '*') $vui.addNamespace(k)
+    })
     $vui.extractNamespaces(document)
     $vui.prepareComponents(document)
     addRootSelector(() => `[${DIR_COMP}]`)
@@ -308,6 +311,16 @@ ${elScript.innerHTML}
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
                 let elComp = this
+                let elTopComp = getParentComponent(elComp)
+                while (elTopComp) {
+                    if (!elTopComp.hasAttribute(ATTR_UI) && !elTopComp._vui_type) {
+                        if ($vui.config.debug) console.log('xxx >>> ' + this.tagName)
+                        return
+                    }
+                    elTopComp = getParentComponent(elTopComp)
+                }
+                elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
+                if ($vui.config.debug) console.log('>>> ' + this.tagName)
                 mutateDom(() => {
                     const slotContents = {}
                     const defaultSlotContent = []
@@ -332,11 +345,11 @@ ${elScript.innerHTML}
                         this.remove()
                     } else {
                         elComp.innerHTML = el.innerHTML
-                        elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
                     }
                     copyAttributes(el, elComp)
 
-                    _.each(elComp.querySelectorAll("slot"), elSlot => {
+                    const elSlots = elComp.querySelectorAll("slot")
+                    _.each(elSlots, elSlot => {
                         const name = elSlot.getAttribute('name') || ''
                         elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
                         elSlot.remove()
@@ -355,9 +368,11 @@ ${elScript.innerHTML}
                     let elParentComp = getParentComponent(elComp)
                     if (!elParentComp || elParentComp._vui_type) {
                         queueMicrotask(() => {
+                            if (!elComp.isConnected) return
                             elComp.removeAttribute(ATTR_CLOAK)
                             elComp.removeAttribute(DIR_IGNORE)
                             delete elComp._x_ignore
+                            if ($vui.config.debug) console.log('initTree ' + elComp.tagName)
                             initTree(elComp)
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
@@ -373,6 +388,7 @@ ${elScript.innerHTML}
                         })
                     } else {
                         // wait for parent component to be mounted
+                        if ($vui.config.debug) console.log('... ' + elComp.tagName)
                         if (!elParentComp._vui_deferred_elements)
                             elParentComp._vui_deferred_elements = []
                         elParentComp._vui_deferred_elements.push(elComp)
@@ -387,6 +403,8 @@ ${elScript.innerHTML}
                 })
             }
             disconnectedCallback() {
+                if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? '<<< ' : 'xxx <<< ') + this.tagName)
+
                 if (this._vui_api) {
                     let api = getApiOf(this)
                     if (api.onUnmounted) api.onUnmounted()
@@ -405,8 +423,8 @@ ${elScript.innerHTML}
     if (!comps) return
     const _ = $vui._
     const importMap = $vui.config.importMap
-    if (!importMap || !importMap['*'])
-        return Promise.reject('You must setup import url template for the fallback namespace "*"')
+    //if (!importMap || !importMap['*'])
+    //    return Promise.reject('You must setup import url template for the fallback namespace "*"')
 
     if (!$vui.imports) $vui.imports = {}
     if (!$vui.importScriptIndex) $vui.importScriptIndex = 1
@@ -436,6 +454,9 @@ ${elScript.innerHTML}
                 let compInfo = { path, namespace, component, fullname: `${namespace ? namespace + ':' : ''}${path}${component}` }
                 if (compInfo.namespace && importMap[compInfo.namespace])
                     urlTpl = importMap[compInfo.namespace]
+                if (!urlTpl){
+                    return console.error(`Url template for namespace '${compInfo.namespace}' is not defined!`)
+                }
                 try {
                     const parse = new Function("data", "with (data){return `" + urlTpl + "`}")
                     url = parse(compInfo)
