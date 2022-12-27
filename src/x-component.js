@@ -238,6 +238,16 @@ ${elScript.innerHTML}
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
                 let elComp = this
+                let elTopComp = getParentComponent(elComp)
+                while (elTopComp) {
+                    if (!elTopComp.hasAttribute(ATTR_UI) && !elTopComp._vui_type) {
+                        if ($vui.config.debug) console.log('xxx >>> ' + this.tagName)
+                        return
+                    }
+                    elTopComp = getParentComponent(elTopComp)
+                }
+                elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
+                if ($vui.config.debug) console.log('>>> ' + this.tagName)
                 mutateDom(() => {
                     const slotContents = {}
                     const defaultSlotContent = []
@@ -262,11 +272,11 @@ ${elScript.innerHTML}
                         this.remove()
                     } else {
                         elComp.innerHTML = el.innerHTML
-                        elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
                     }
                     copyAttributes(el, elComp)
 
-                    _.each(elComp.querySelectorAll("slot"), elSlot => {
+                    const elSlots = elComp.querySelectorAll("slot")
+                    _.each(elSlots, elSlot => {
                         const name = elSlot.getAttribute('name') || ''
                         elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
                         elSlot.remove()
@@ -288,6 +298,7 @@ ${elScript.innerHTML}
                             elComp.removeAttribute(ATTR_CLOAK)
                             elComp.removeAttribute(DIR_IGNORE)
                             delete elComp._x_ignore
+                            if ($vui.config.debug) console.log('initTree', elComp.tagName)
                             initTree(elComp)
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
@@ -317,6 +328,8 @@ ${elScript.innerHTML}
                 })
             }
             disconnectedCallback() {
+                if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? '<<< ' : 'xxx <<< ') + this.tagName)
+
                 if (this._vui_api) {
                     let api = getApiOf(this)
                     if (api.onUnmounted) api.onUnmounted()
