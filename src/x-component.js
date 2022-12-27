@@ -295,10 +295,11 @@ ${elScript.innerHTML}
                     let elParentComp = getParentComponent(elComp)
                     if (!elParentComp || elParentComp._vui_type) {
                         queueMicrotask(() => {
+                            if (!elComp.isConnected) return
                             elComp.removeAttribute(ATTR_CLOAK)
                             elComp.removeAttribute(DIR_IGNORE)
                             delete elComp._x_ignore
-                            if ($vui.config.debug) console.log('initTree', elComp.tagName)
+                            if ($vui.config.debug) console.log('initTree ' + elComp.tagName)
                             initTree(elComp)
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
@@ -314,6 +315,7 @@ ${elScript.innerHTML}
                         })
                     } else {
                         // wait for parent component to be mounted
+                        if ($vui.config.debug) console.log('... ' + elComp.tagName)
                         if (!elParentComp._vui_deferred_elements)
                             elParentComp._vui_deferred_elements = []
                         elParentComp._vui_deferred_elements.push(elComp)
