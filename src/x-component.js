@@ -52,12 +52,22 @@ $vui.ready(() => {
         return getParentComponent(el.parentNode)
     }
     function visitComponents(elContainer, callback) {
-        if (elContainer.tagName === 'TEMPLATE')
+        if (elContainer.tagName === 'TEMPLATE') {
+            if (elContainer._x_teleport) {
+                if (isComponent(elContainer._x_teleport)) callback(elContainer._x_teleport)
+                return visitComponents(elContainer._x_teleport, callback)
+            }
             return visitComponents(elContainer.content, callback)
+        }
         _.each(elContainer.querySelectorAll('*'), el => {
             if (isComponent(el)) callback(el)
-            if (el.tagName === 'TEMPLATE')
+            if (el.tagName === 'TEMPLATE') {
+                if (el._x_teleport) {
+                    if (isComponent(el._x_teleport)) callback(el._x_teleport)
+                    return visitComponents(el._x_teleport, callback)
+                }
                 return visitComponents(el.content, callback)
+            }
         })
     }
     function findClosestComponent(el, filter) {
@@ -69,6 +79,9 @@ $vui.ready(() => {
             }
             if (!filter || filter(el)) return el
         }
+        if (el._x_teleportBack) {
+            return findClosestComponent(el._x_teleportBack.parentNode, filter)
+        }
         return findClosestComponent(el.parentNode, filter)
     }
     function getApiOf(el, filter) {
@@ -77,7 +90,8 @@ $vui.ready(() => {
         const baseApis = {
             $of(type) {
                 if (!type) return null
-                return getApiOf(comp.parentNode, el => el._vui_type === type)
+                return getApiOf(
+                    (comp._x_teleportBack || comp).parentNode, el => el._vui_type === type)
             },
             get $meta() { return getComponentMeta(this.$el) },
             get $parent() { return getParentComponent(this.$el) },
