@@ -255,13 +255,13 @@ ${elScript.innerHTML}
                 let elTopComp = getParentComponent(elComp)
                 while (elTopComp) {
                     if (!elTopComp.hasAttribute(ATTR_UI) && !elTopComp._vui_type) {
-                        if ($vui.config.debug) console.log('xxx >>> ' + this.tagName)
+                        if ($vui.config.debug) console.log('Not ready to connect ' + this.tagName)
                         return
                     }
                     elTopComp = getParentComponent(elTopComp)
                 }
                 elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
-                if ($vui.config.debug) console.log('>>> ' + this.tagName)
+                if ($vui.config.debug) console.log('Connect ' + this.tagName)
                 mutateDom(() => {
                     const slotContents = {}
                     const defaultSlotContent = []
@@ -295,6 +295,7 @@ ${elScript.innerHTML}
                         elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
                         elSlot.remove()
                     })
+                    if (unwrap) return
 
                     elComp._vui_prefix = prefix
                     elComp._vui_type = expression
@@ -313,7 +314,7 @@ ${elScript.innerHTML}
                             elComp.removeAttribute(ATTR_CLOAK)
                             elComp.removeAttribute(DIR_IGNORE)
                             delete elComp._x_ignore
-                            if ($vui.config.debug) console.log('initTree ' + elComp.tagName)
+                            if ($vui.config.debug) console.log('Process initTree ' + this.tagName )
                             initTree(elComp)
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
@@ -329,7 +330,7 @@ ${elScript.innerHTML}
                         })
                     } else {
                         // wait for parent component to be mounted
-                        if ($vui.config.debug) console.log('... ' + elComp.tagName)
+                        if ($vui.config.debug) console.log('Defer initTree ' + this.tagName )
                         if (!elParentComp._vui_deferred_elements)
                             elParentComp._vui_deferred_elements = []
                         elParentComp._vui_deferred_elements.push(elComp)
@@ -344,7 +345,7 @@ ${elScript.innerHTML}
                 })
             }
             disconnectedCallback() {
-                if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? '<<< ' : 'xxx <<< ') + this.tagName)
+                if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? 'Disconnect ' : 'Not ready to disconnect ') + this.tagName)
 
                 if (this._vui_api) {
                     let api = getApiOf(this)
