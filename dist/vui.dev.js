@@ -1,4 +1,4 @@
-// Vimesh UI v0.12.2
+// Vimesh UI v0.12.3
 "use strict";
 
 (function (G) {
@@ -157,6 +157,30 @@ $vui.ready(() => {
         }
         return findClosestComponent(el.parentNode, filter)
     }
+    function normalizeFilter(filter, defNamespace) {
+        if (_.isFunction(filter)) return filter
+        if (_.isPlainObject(filter)) {
+            return (el) => {
+                if (el._vui_type !== filter.type) return false
+                if (filter.namespace && el._vui_namespace !== filter.namespace) return false
+                return true
+            }
+        } else {
+            let namespace = ''
+            let type = filter
+            let parts = filter.split(':')
+            if (parts.length > 1) {
+                namespace = parts[0] || defNamespace
+                type = parts[1]
+            }
+            return (el) => {
+                if (el._vui_type !== type) return false
+                if (namespace && el._vui_namespace !== namespace) return false
+                return true
+            }
+        }
+
+    }
     function getApiOf(el, filter) {
         const comp = findClosestComponent(el, filter)
         if (!comp) return null
@@ -164,14 +188,18 @@ $vui.ready(() => {
             $of(type) {
                 if (!type) return null
                 return getApiOf(
-                    (comp._x_teleportBack || comp).parentNode, el => el._vui_type === type)
+                    (comp._x_teleportBack || comp).parentNode, normalizeFilter(type, comp._vui_namespace))
             },
-            get $meta() { return getComponentMeta(this.$el) },
-            get $parent() { return getParentComponent(this.$el) },
-            $closest(filter) { return findClosestComponent(this.$el, filter) },
-            $find(filter) { return findChildComponents(this.$el, filter) },
+            get $meta() { return getComponentMeta(comp) },
+            get $parent() { return getParentComponent(comp) },
+            $closest(filter) {
+                return findClosestComponent(comp, normalizeFilter(filter, comp._vui_namespace))
+            },
+            $find(filter) {
+                return findChildComponents(comp, normalizeFilter(filter, comp._vui_namespace))
+            },
             $findOne(filter) {
-                let comps = findChildComponents(this.$el, filter)
+                let comps = findChildComponents(comp, normalizeFilter(filter, comp._vui_namespace))
                 return comps.length > 0 ? comps[0] : null
             }
         }
@@ -179,7 +207,6 @@ $vui.ready(() => {
     }
     function getComponentMeta(el) {
         return {
-            prefix: el._vui_prefix,
             type: el._vui_type,
             namespace: el._vui_namespace
         }
@@ -281,9 +308,7 @@ $vui.ready(() => {
             return console.warn('x-component can only be used on a <template> tag', el)
         }
         const namespace = value || $vui.config.namespace || DEFAULT_NAMESPACE
-        const prefixMap = $vui.config.prefixMap || {}
-        const prefix = prefixMap[namespace] || namespace
-        const compName = `${prefix}-${expression}`
+        const compName = `${namespace}-${expression}`
         const unwrap = modifiers.includes('unwrap')
         const elScript = el.content.querySelector("script")
         if (elScript) {
@@ -368,9 +393,8 @@ ${elScript.innerHTML}
                         elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
                         elSlot.remove()
                     })
-                    if (unwrap) return
+                    if (unwrap && isComponent(elComp)) return
 
-                    elComp._vui_prefix = prefix
                     elComp._vui_type = expression
                     elComp._vui_namespace = namespace
                     let setup = $vui.setups[compName]
@@ -387,7 +411,7 @@ ${elScript.innerHTML}
                             elComp.removeAttribute(ATTR_CLOAK)
                             elComp.removeAttribute(DIR_IGNORE)
                             delete elComp._x_ignore
-                            if ($vui.config.debug) console.log('Process initTree ' + this.tagName )
+                            if ($vui.config.debug) console.log('Process initTree ' + this.tagName)
                             initTree(elComp)
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
@@ -403,7 +427,7 @@ ${elScript.innerHTML}
                         })
                     } else {
                         // wait for parent component to be mounted
-                        if ($vui.config.debug) console.log('Defer initTree ' + this.tagName )
+                        if ($vui.config.debug) console.log('Defer initTree ' + this.tagName)
                         if (!elParentComp._vui_deferred_elements)
                             elParentComp._vui_deferred_elements = []
                         elParentComp._vui_deferred_elements.push(elComp)
