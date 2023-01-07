@@ -1,4 +1,4 @@
-// Vimesh UI v0.12.3
+// Vimesh UI v0.12.4
 "use strict";
 
 (function (G) {
@@ -233,12 +233,23 @@ $vui.ready(() => {
     $vui.$api = (el) => getApiOf(el)
     $vui.$data = Alpine.$data
     $vui.setHtml = (el, html) => {
+        el.innerHTML = ''
+        let dom = $vui.dom(html)
+        if (_.isArray(dom))
+            el.append(...dom)
+        else
+            el.append(dom)
+    }
+    $vui.defer = (callback) => {
+        queueMicrotask(callback)
+    }
+    $vui.dom = (html) => {
         const elTemp = document.createElement('div')
         elTemp._x_ignore = true
         elTemp.innerHTML = html
         $vui.extractNamespaces(elTemp)
         $vui.prepareComponents(elTemp)
-        el.innerHTML = elTemp.innerHTML
+        return elTemp.childNodes.length === 1 ? elTemp.firstChild : [...elTemp.childNodes]
     }
     $vui.nextTick = Alpine.nextTick
     $vui.effect = Alpine.effect
