@@ -84,6 +84,52 @@ The default custom element namespace is `vui`, which could be modified in config
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/LYrrjdq)
 
+The final html result will be
+
+```html
+...
+
+<body x-data>
+    <myui-greeting><h1>Hello My UI
+        </h1></myui-greeting>
+    <new-greeting><h1>Hi My UI
+        </h1></new-greeting>
+</body>
+```
+In some cases, we do not want the component tag to exist in the result. We could just add an `unwrap` modifier in `x-component`. 
+
+```html
+...
+
+<body x-data>
+    <myui-greeting>My UI</myui-greeting>
+    <new-greeting>My UI</new-greeting>
+
+    <template x-component.unwrap="greeting">
+        <h1>Hello <slot></slot>
+        </h1>
+    </template>
+
+    <template x-component:new.unwrap="greeting">
+        <h1>Hi <slot></slot>
+        </h1>
+    </template>
+</body>
+```
+
+The component tags `myui-greeting` and `new-greeting` will no longer exist in the final html result 
+
+```html
+...
+
+<body x-data>
+    <h1>Hello My UI
+        </h1>
+    <h1>Hi My UI
+        </h1>
+</body>
+```
+
 ## x-import
 Of course, we don't want to embed common components in every page. The `x-import` directive helps to load remote components asynchronously. Let's extract the greeting component into a standalone file. 
 > /hello-remote.html
@@ -191,7 +237,8 @@ Here is a more complete example:
 [Run on codepen](https://codepen.io/vimeshjs/pen/RwJBygE)
 
 ## x-include
-Sometimes we just need to load a piece of html. The `x-include` is convenient to use in this case.
+Sometimes we just need to load a piece of html. The `x-include` is convenient to use in this case. The `unwrap` modifier is used to remove the host html tag. 
+
 > /include-article.html
 ```html
 <head>
@@ -214,7 +261,35 @@ Sometimes we just need to load a piece of html. The `x-include` is convenient to
     Content
 </p>
 ```
+
+The final result will be 
+```html
+<head>
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>      
+</head>
+
+<body x-data>
+    Load into the external "div" tag:<br>
+    <div style="background-color: #888;">
+    <h1>Title</h1>
+    <p>
+        Content
+    </p>
+    </div>
+
+    Unwrap the external "div" tag:<br>
+    <h1>Title</h1>
+    <p>
+        Content
+    </p>
+</body>
+```
+
 [Run on codepen](https://codepen.io/vimeshjs/pen/ExRpLbb)
+
+## x-shtml
+In Vimesh UI, please use x-shtml instead of Alpine.js original x-html, which has wrong behaviors in case of complex component lifecycle. 
 
 # Advanced Usage
 ## $api for component
