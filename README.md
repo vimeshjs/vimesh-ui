@@ -170,6 +170,7 @@ The components could be loaded from anywhere, like
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/poKKrYd)
 
+`x-import` could load components from different namespaces. The syntax is `x-import="namespace1:comp11,comp12;namespace2:comp21,comp22;..."`. For default namespace, it could be omitted. 
 Here is a more complete example:
 > /counters.html
 ```html
@@ -312,6 +313,29 @@ In Vimesh UI, please use x-shtml instead of Alpine.js original x-html, which has
 | ----------- | ----------- |
 | init()      | onMounted()   |
 | destroy()   | onUnmounted()    |
+
+## $vui global variable
+Once Vimesh UI is initialized, there is a global variable `$vui` attached to `window`. 
+
+| Property/Method     | Description |
+| ----------- | ----------- |
+| $vui.config | A config object of `debug` mode flag and `importMap` | 
+| $vui._      | An utility object of some most used functions: `isString`, `isArray`, `isFunction`, `isPlainObject`, `each`, `map`, `filter`, `extend`   |
+| $vui.getComponentMeta(element)  | Get component type and namespace from html element |
+| $vui.isComponent(element)  | Return true if an html element is a Vimesh UI component   |
+| $vui.visitComponents(elContainer, callback)  | Recursively visit all components inside an html container element with callback   |
+| $vui.findChildComponents(elContainer, filter)  | Find all child component inside an html container element with specific filter, which could be component type or a function    |
+| $vui.getParentComponent(element)  | Get the parent component of specific html element   |
+| $vui.findClosestComponent(element, filter)  |  Find the closest ancestor component element according to the filter, which could be component type or a function        |
+| $vui.$api(element)  | Get $api of a component element   |
+| $vui.$data(element)  | Alias of Alpine.$data(element)  |
+| $vui.setHtml(elContainer, html)   | Load html into a container element. And Vimesh UI components in the html will be correctly initialized   |
+| $vui.defer(callback)  | Execute callback in next event loop.   |
+| $vui.dom(html)  | Load a plain html into dom with Vimesh UI components correctly initialized   |
+| $vui.nextTick(callback) | Alias of Alpine.nextTick(callback) | 
+| $vui.effect(callback) | Alias of Alpine.effect(callback) |
+| $vui.focus(element, option) | Try to make an html element focused | 
+| $vui.scrollIntoView(element) | Try to scroll an html element into view | 
 
 ## Multi pages application
 Check [mpa example](/examples/mpa)

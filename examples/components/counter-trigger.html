@@ -1,7 +1,3 @@
-<script use-meta>
-    let meta = __import_meta__
-    console.log(`Add 'use-meta' to get __import_meta__, which include all meta info of current imported component`, meta)
-</script>
 <template x-component="counter-trigger">
     <button @click="$api.$of('counter').increase()"
         class="inline-block rounded-lg mt-2 bg-green-600 px-4 py-1.5 text-white shadow ring-1 ring-green-600 hover:bg-green-700 hover:ring-green-700">
