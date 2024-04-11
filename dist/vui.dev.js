@@ -1,4 +1,4 @@
-// Vimesh UI v0.12.4
+// Vimesh UI v0.12.5
 "use strict";
 
 (function (G) {
@@ -120,9 +120,12 @@ $vui.ready(() => {
         return false
     }
     function getParentComponent(el) {
+        visitParent(el, isComponent)
+    }
+    function visitParent(el, filter) {
         if (!el.parentNode) return null
-        if (isComponent(el.parentNode)) return el.parentNode
-        return getParentComponent(el.parentNode)
+        if (filter(el.parentNode)) return el.parentNode
+        return visitParent(el.parentNode, filter)
     }
     function visitComponents(elContainer, callback) {
         if (elContainer.tagName === 'TEMPLATE') {
@@ -390,6 +393,7 @@ ${elScript.innerHTML}
                     })
                     if (unwrap) {
                         elComp = el.content.cloneNode(true).firstElementChild
+                        elComp._unwrapping = true
                         copyAttributes(this, elComp)
                         this.after(elComp)
                         this.remove()
@@ -415,8 +419,9 @@ ${elScript.innerHTML}
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
 
-                    let elParentComp = getParentComponent(elComp)
+                    let elParentComp = getParentComponent(elComp) || visitParent(elComp, el => el._unwrapping)
                     if (!elParentComp || elParentComp._vui_type) {
+                        if ($vui.config.debug) console.log('Plan initTree ' + this.tagName)
                         queueMicrotask(() => {
                             if (!elComp.isConnected) return
                             elComp.removeAttribute(ATTR_CLOAK)
@@ -424,6 +429,7 @@ ${elScript.innerHTML}
                             delete elComp._x_ignore
                             if ($vui.config.debug) console.log('Process initTree ' + this.tagName)
                             initTree(elComp)
+                            if (elComp._unwrapping) delete elComp._unwrapping
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
                                 if (api.onMounted) api.onMounted()
