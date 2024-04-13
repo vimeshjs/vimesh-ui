@@ -116,7 +116,7 @@ $vui.ready(() => {
         if (!comp) return null
         const baseApis = {
             $of(type) {
-                if (!type) return null
+                if (!type) return getApiOf((comp._x_teleportBack || comp).parentNode)
                 return getApiOf(
                     (comp._x_teleportBack || comp).parentNode, normalizeFilter(type, comp._vui_namespace))
             },
@@ -320,11 +320,12 @@ ${elScript.innerHTML}
                     })
                     if (unwrap) {
                         elComp = el.content.cloneNode(true).firstElementChild
-                        elComp._unwrapping = true
+                        elComp._vui_processing = true
                         copyAttributes(this, elComp)
                         this.after(elComp)
                         this.remove()
                     } else {
+                        elComp._vui_processing = true
                         elComp.innerHTML = el.innerHTML
                     }
                     copyAttributes(el, elComp)
@@ -346,7 +347,7 @@ ${elScript.innerHTML}
                     if (!elComp.hasAttribute(DIR_DATA))
                         elComp.setAttribute(DIR_DATA, '{}')
 
-                    let elParentComp = getParentComponent(elComp) || visitParent(elComp, el => el._unwrapping)
+                    let elParentComp = getParentComponent(elComp) || visitParent(elComp, el => el._vui_processing)
                     if (!elParentComp || elParentComp._vui_type) {
                         if ($vui.config.debug) console.log('Plan initTree ' + this.tagName)
                         queueMicrotask(() => {
@@ -356,7 +357,7 @@ ${elScript.innerHTML}
                             delete elComp._x_ignore
                             if ($vui.config.debug) console.log('Process initTree ' + this.tagName)
                             initTree(elComp)
-                            if (elComp._unwrapping) delete elComp._unwrapping
+                            if (elComp._vui_processing) delete elComp._vui_processing
                             if (elComp._vui_api) {
                                 let api = getApiOf(elComp)
                                 if (api.onMounted) api.onMounted()

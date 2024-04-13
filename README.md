@@ -303,7 +303,7 @@ In Vimesh UI, please use x-shtml instead of Alpine.js original x-html, which has
 
 | Methods      | Description |
 | ----------- | ----------- |
-| $of('component type')      | Find the $api of specific component type of its ancestors       |
+| $of('component type')      | Find the $api of specific component type of its ancestors. If the component type is empty, it will return the $api of its closest parent component     |
 | $closest(filter)   | Find the closest ancestor component element according to the filter, which could be component type or a function        |
 | $find(filter)   | Find all descendant component element according to the filter, which could be component type or a function         |
 | $findOne(filter)   | It is similar to $find, but only return the first component element match the filter        |
