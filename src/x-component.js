@@ -288,6 +288,7 @@ ${elScript.innerHTML}
                 }
             })
         }
+        if (!customElements.get(compName.toLowerCase())) {
         $vui.components[compName] = class extends HTMLElement {
             connectedCallback() {
                 let elComp = this
@@ -402,5 +403,6 @@ ${elScript.innerHTML}
             }
         }
         customElements.define(compName.toLowerCase(), $vui.components[compName]);
+        }
     })
 })
