@@ -289,120 +289,120 @@ ${elScript.innerHTML}
             })
         }
         if (!customElements.get(compName.toLowerCase())) {
-        $vui.components[compName] = class extends HTMLElement {
-            connectedCallback() {
-                let elComp = this
-                let elTopComp = getParentComponent(elComp)
-                while (elTopComp) {
-                    if (!elTopComp.hasAttribute(ATTR_UI) && !elTopComp._vui_type) {
-                        if ($vui.config.debug) console.log('Not ready to connect ' + this.tagName)
-                        return
-                    }
-                    elTopComp = getParentComponent(elTopComp)
-                }
-                elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
-                if ($vui.config.debug) console.log('Connect ' + this.tagName)
-                mutateDom(() => {
-                    const slotContents = {}
-                    const defaultSlotContent = []
-                    _.each(this.childNodes, elChild => {
-                        if (elChild.tagName && elChild.hasAttribute('slot')) {
-                            let slotName = elChild.getAttribute('slot') || ''
-                            let content = elChild.tagName === 'TEMPLATE' ?
-                                elChild.content.cloneNode(true).childNodes :
-                                [elChild.cloneNode(true)]
-                            if (slotContents[slotName])
-                                slotContents[slotName].push(...content)
-                            else
-                                slotContents[slotName] = content
-                        } else {
-                            defaultSlotContent.push(elChild.cloneNode(true))
+            $vui.components[compName] = class extends HTMLElement {
+                connectedCallback() {
+                    let elComp = this
+                    let elTopComp = getParentComponent(elComp)
+                    while (elTopComp) {
+                        if (!elTopComp.hasAttribute(ATTR_UI) && !elTopComp._vui_type) {
+                            if ($vui.config.debug) console.log('Not ready to connect ' + this.tagName)
+                            return
                         }
-                    })
-                    if (unwrap) {
-                        elComp = el.content.cloneNode(true).firstElementChild
-                        elComp._vui_processing = true
-                        copyAttributes(this, elComp)
-                        this.after(elComp)
-                        this.remove()
-                    } else {
-                        elComp._vui_processing = true
-                        elComp.innerHTML = el.innerHTML
+                        elTopComp = getParentComponent(elTopComp)
                     }
-                    copyAttributes(el, elComp)
-
-                    const elSlots = elComp.querySelectorAll("slot")
-                    _.each(elSlots, elSlot => {
-                        const name = elSlot.getAttribute('name') || ''
-                        elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
-                        elSlot.remove()
-                    })
-                    if (unwrap && isComponent(elComp)) return
-
-                    elComp._vui_type = expression
-                    elComp._vui_namespace = namespace
-                    let setup = $vui.setups[compName]
-                    if (setup) {
-                        elComp._vui_api = reactive(setup(elComp))
-                    }
-                    if (!elComp.hasAttribute(DIR_DATA))
-                        elComp.setAttribute(DIR_DATA, '{}')
-
-                    let elParentComp = getParentComponent(elComp) || visitParent(elComp, el => el._vui_processing)
-                    if (!elParentComp || elParentComp._vui_type) {
-                        if ($vui.config.debug) console.log('Plan initTree ' + this.tagName)
-                        queueMicrotask(() => {
-                            if (!elComp.isConnected) return
-                            elComp.removeAttribute(ATTR_CLOAK)
-                            elComp.removeAttribute(DIR_IGNORE)
-                            delete elComp._x_ignore
-                            if ($vui.config.debug) console.log('Process initTree ' + this.tagName)
-                            initTree(elComp)
-                            if (elComp._vui_processing) delete elComp._vui_processing
-                            if (elComp._vui_api) {
-                                let api = getApiOf(elComp)
-                                if (api.onMounted) api.onMounted()
+                    elComp.setAttribute(ATTR_UI, $vui.config.debug ? `${_.elapse()}` : '')
+                    if ($vui.config.debug) console.log('Connect ' + this.tagName)
+                    mutateDom(() => {
+                        const slotContents = {}
+                        const defaultSlotContent = []
+                        _.each(this.childNodes, elChild => {
+                            if (elChild.tagName && elChild.hasAttribute('slot')) {
+                                let slotName = elChild.getAttribute('slot') || ''
+                                let content = elChild.tagName === 'TEMPLATE' ?
+                                    elChild.content.cloneNode(true).childNodes :
+                                    [elChild.cloneNode(true)]
+                                if (slotContents[slotName])
+                                    slotContents[slotName].push(...content)
+                                else
+                                    slotContents[slotName] = content
+                            } else {
+                                defaultSlotContent.push(elChild.cloneNode(true))
                             }
-                            _.each(elComp._vui_deferred_elements, el => {
-                                if (el._vui_api) {
-                                    let api = getApiOf(el)
+                        })
+                        if (unwrap) {
+                            elComp = el.content.cloneNode(true).firstElementChild
+                            elComp._vui_processing = true
+                            copyAttributes(this, elComp)
+                            this.after(elComp)
+                            this.remove()
+                        } else {
+                            elComp._vui_processing = true
+                            elComp.innerHTML = el.innerHTML
+                        }
+                        copyAttributes(el, elComp)
+
+                        const elSlots = elComp.querySelectorAll("slot")
+                        _.each(elSlots, elSlot => {
+                            const name = elSlot.getAttribute('name') || ''
+                            elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                            elSlot.remove()
+                        })
+                        if (unwrap && isComponent(elComp)) return
+
+                        elComp._vui_type = expression
+                        elComp._vui_namespace = namespace
+                        let setup = $vui.setups[compName]
+                        if (setup) {
+                            elComp._vui_api = reactive(setup(elComp))
+                        }
+                        if (!elComp.hasAttribute(DIR_DATA))
+                            elComp.setAttribute(DIR_DATA, '{}')
+
+                        let elParentComp = getParentComponent(elComp) || visitParent(elComp, el => el._vui_processing)
+                        if (!elParentComp || elParentComp._vui_type) {
+                            if ($vui.config.debug) console.log('Plan initTree ' + this.tagName)
+                            queueMicrotask(() => {
+                                if (!elComp.isConnected) return
+                                elComp.removeAttribute(ATTR_CLOAK)
+                                elComp.removeAttribute(DIR_IGNORE)
+                                delete elComp._x_ignore
+                                if ($vui.config.debug) console.log('Process initTree ' + this.tagName)
+                                initTree(elComp)
+                                if (elComp._vui_processing) delete elComp._vui_processing
+                                if (elComp._vui_api) {
+                                    let api = getApiOf(elComp)
                                     if (api.onMounted) api.onMounted()
                                 }
+                                _.each(elComp._vui_deferred_elements, el => {
+                                    if (el._vui_api) {
+                                        let api = getApiOf(el)
+                                        if (api.onMounted) api.onMounted()
+                                    }
+                                })
+                                delete elComp._vui_deferred_elements
                             })
-                            delete elComp._vui_deferred_elements
-                        })
-                    } else {
-                        // wait for parent component to be mounted
-                        if ($vui.config.debug) console.log('Defer initTree ' + this.tagName)
-                        if (!elParentComp._vui_deferred_elements)
-                            elParentComp._vui_deferred_elements = []
-                        elParentComp._vui_deferred_elements.push(elComp)
-                        if (elComp._vui_deferred_elements)
-                            elParentComp._vui_deferred_elements.push(...elComp._vui_deferred_elements)
-                        queueMicrotask(() => {
-                            elComp.removeAttribute(ATTR_CLOAK)
-                            elComp.removeAttribute(DIR_IGNORE)
-                            delete elComp._x_ignore
-                        })
-                    }
-                })
-            }
-            disconnectedCallback() {
-                if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? 'Disconnect ' : 'Not ready to disconnect ') + this.tagName)
+                        } else {
+                            // wait for parent component to be mounted
+                            if ($vui.config.debug) console.log('Defer initTree ' + this.tagName)
+                            if (!elParentComp._vui_deferred_elements)
+                                elParentComp._vui_deferred_elements = []
+                            elParentComp._vui_deferred_elements.push(elComp)
+                            if (elComp._vui_deferred_elements)
+                                elParentComp._vui_deferred_elements.push(...elComp._vui_deferred_elements)
+                            queueMicrotask(() => {
+                                elComp.removeAttribute(ATTR_CLOAK)
+                                elComp.removeAttribute(DIR_IGNORE)
+                                delete elComp._x_ignore
+                            })
+                        }
+                    })
+                }
+                disconnectedCallback() {
+                    if ($vui.config.debug) console.log((this.hasAttribute(ATTR_UI) ? 'Disconnect ' : 'Not ready to disconnect ') + this.tagName)
 
-                if (this._vui_api) {
-                    let api = getApiOf(this)
-                    if (api.onUnmounted) api.onUnmounted()
+                    if (this._vui_api) {
+                        let api = getApiOf(this)
+                        if (api.onUnmounted) api.onUnmounted()
+                    }
+                }
+                attributeChangedCallback(name, oldValue, newValue) {
+                    if (this._vui_api) {
+                        let api = getApiOf(this)
+                        if (api.onAttributeChanged) api.onAttributeChanged(name, oldValue, newValue)
+                    }
                 }
             }
-            attributeChangedCallback(name, oldValue, newValue) {
-                if (this._vui_api) {
-                    let api = getApiOf(this)
-                    if (api.onAttributeChanged) api.onAttributeChanged(name, oldValue, newValue)
-                }
-            }
-        }
-        customElements.define(compName.toLowerCase(), $vui.components[compName]);
+            customElements.define(compName.toLowerCase(), $vui.components[compName]);
         }
     })
 })
