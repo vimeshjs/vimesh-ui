@@ -1,4 +1,4 @@
-// Vimesh UI v0.12.7
+// Vimesh UI v0.12.8
 "use strict";
 
 (function (G) {
@@ -289,6 +289,8 @@ $vui.ready(() => {
     }
     $vui.prepareComponents = (elContainer) => {
         visitComponents(elContainer, el => {
+            if ($vui.config.autoImport === true)
+                $vui.import(el.tagName.replace('-', ':').toLowerCase())
             el.setAttribute(ATTR_CLOAK, '')
             el.setAttribute(DIR_IGNORE, '')
         })

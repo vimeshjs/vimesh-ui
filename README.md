@@ -237,6 +237,46 @@ Here is a more complete example:
 ```
 [Run on codepen](https://codepen.io/vimeshjs/pen/RwJBygE)
 
+### How to import dynamic components ?
+Add `dynamic` modifier to `x-import`, it will evaluate the express to a string or array and then import all these components. Please refer the example in `examples/spa/app.html`.
+```html
+    <template x-component="router-view" x-shtml="$api && $api.pageContent || ''"
+        x-import:dynamic="$api && $api.pageToImport">
+    ...
+    </template>
+```
+
+### Auto import all components
+Set the `autoImport` config to `true`, Vimesh UI will automatically try to import all custom html elements. Most `x-import` could be omitted. For example the previous `counters.html` could be rewritten as 
+```html
+<head>
+    <script src="https://unpkg.com/@vimesh/style" defer></script>
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+        $vui.config.importMap = {
+            "*": './components/${component}.html'
+        }
+        $vui.config.autoImport = true
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body x-cloak class="p-2" x-data="{name: 'Counter to rename', winner: 'Jacky'}">   
+    Rename the 2nd counter : <input type="text" x-model="name" class="rounded-md border-2 border-blue-500">
+    <vui-counter x-data="{step: 1}" :primary="true" title="First" x-init="console.log('This is the first one')" owner-name="Tom"></vui-counter>
+    <vui-counter x-data="{step: 5}" :title="name + ' @ ' + $prop('owner-name')" owner-name="Frank"></vui-counter>
+    <vui-counter x-data="{step: 10, value: 1000}" :owner-name="winner">
+        <vui-counter-trigger></vui-counter-trigger>
+    </vui-counter>
+</body>
+```
+
 ## x-include
 Sometimes we just need to load a piece of html. The `x-include` is convenient to use in this case. The `unwrap` modifier is used to remove the host html tag. 
 
