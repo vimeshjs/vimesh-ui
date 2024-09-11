@@ -47,7 +47,7 @@ $vui.ready(() => {
         return false
     }
     function getParentComponent(el) {
-        visitParent(el, isComponent)
+        return visitParent(el, isComponent)
     }
     function visitParent(el, filter) {
         if (!el.parentNode) return null

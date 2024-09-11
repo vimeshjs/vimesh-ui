@@ -1,4 +1,4 @@
-// Vimesh UI v0.12.8
+// Vimesh UI v0.12.9
 "use strict";
 
 (function (G) {
@@ -120,7 +120,7 @@ $vui.ready(() => {
         return false
     }
     function getParentComponent(el) {
-        visitParent(el, isComponent)
+        return visitParent(el, isComponent)
     }
     function visitParent(el, filter) {
         if (!el.parentNode) return null
