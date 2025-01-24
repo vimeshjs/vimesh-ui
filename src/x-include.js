@@ -14,7 +14,17 @@ $vui.include = (elHost, urls) => {
             url = url.trim()
             if (url) {
                 let fullUrl = new URL(url, baseUrl).href
-                tasks.push(fetch(fullUrl).then(r => r.text()).then(html => {
+                let loader
+                if (url[0] == '#'){
+                    let id = url.substring(1)
+                    loader = new Promise(resolve => {
+                        let el = document.getElementById(id)
+                        resolve(el && el.innerHTML || '')
+                    })
+                } else {
+                    loader = fetch(fullUrl).then(r => r.text())
+                }
+                tasks.push(loader.then(html => {
                     const el = document.createElement('div')
                     el._x_ignore = true
                     el.innerHTML = html
@@ -48,6 +58,7 @@ $vui.include = (elHost, urls) => {
                                 } else {
                                     elChild._vui_base_url = fullUrl
                                     if (unwrap) {
+                                        elChild._x_dataStack = elHost._x_dataStack
                                         elHost.before(elChild)
                                     } else {
                                         elHost.append(elChild)
@@ -57,14 +68,15 @@ $vui.include = (elHost, urls) => {
                             } else {
                                 if ($vui.config.debug)
                                     console.log(`Included ${url}`)
-                                if (unwrap) elHost.remove()
+                                if (unwrap) 
+                                    elHost.remove()
                                 resolve()
                             }
                         }
                         process(0)
                     })
                 }).catch(ex => {
-                    console.error(`Fails to include ${comp} @ ${url}`, ex)
+                    console.error(`Fails to include ${url}`, ex)
                 }))
             }
         })
@@ -81,7 +93,7 @@ $vui.ready(() => {
         if (!expression) return
         el._vui_unwrap = modifiers.includes('unwrap')
         let urls = expression.trim()
-        if (urls.startsWith('.') || urls.startsWith('/') || urls.startsWith('http://') || urls.startsWith('https://')) {
+        if (urls.startsWith('#') || urls.startsWith('.') || urls.startsWith('/') || urls.startsWith('http://') || urls.startsWith('https://')) {
             $vui.include(el, [urls])
         } else {
             let evaluate = evaluateLater(expression)
