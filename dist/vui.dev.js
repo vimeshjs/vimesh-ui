@@ -1,4 +1,4 @@
-// Vimesh UI v0.13.0
+// Vimesh UI v0.13.1
 "use strict";
 
 (function (G) {
@@ -113,6 +113,8 @@ $vui.ready(() => {
             let p = el.tagName.indexOf('-')
             if (p === -1) return false
             let ns = el.tagName.substring(0, p).toLowerCase()
+            if ($vui.config.autoImport === true)
+                return true
             if (allNamespaces.indexOf(ns) !== -1) {
                 return true
             }
