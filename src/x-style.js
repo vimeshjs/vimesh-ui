@@ -252,7 +252,7 @@ function setupXStyle(G) {
             callback(partName ? style.parts[partName] : style, themeName, styleName);
         }
         function getVariantValue(el, variantName) {
-            const attrName = `data-${variantName}`;
+            const attrName = `${$vui.config.propPrefix}${variantName}`;
             let variantValue = bound(el, attrName);
             if (undefined === variantValue && el._x_part && el._x_part.hostElement) {
                 const hostElement = el._x_part.hostElement;
@@ -379,6 +379,7 @@ function setupXStyle(G) {
 
         // Register x-style directive
         directive('style', (el, { expression }, { effect }) => {
+            if (el.tagName === 'TEMPLATE') return
             const styleName = expression;
 
             effect(() => {
@@ -389,6 +390,7 @@ function setupXStyle(G) {
 
         // Register x-part directive
         directive('part', (el, { expression }, { effect }) => {
+            if (el.tagName === 'TEMPLATE') return
             // Get part name
             const partName = expression;
             // Find the nearest x-style element as host node

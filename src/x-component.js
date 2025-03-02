@@ -238,7 +238,7 @@ function setupXComponent(G) {
             return (name, fallback) => {
                 let comp = findClosestComponent(el)
                 if (!comp) return null
-                return Alpine.bound(comp, name, fallback)
+                return Alpine.bound(comp, `${$vui.config.propPrefix}${name}`, fallback)
             }
         })
 

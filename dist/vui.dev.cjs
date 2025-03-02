@@ -1,9 +1,12 @@
-// Vimesh UI v0.14.1
+// Vimesh UI v0.14.3
 function setupCore(G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
-        config: { debug: false },
+        config: {
+            debug: false,
+            propPrefix: 'data-'
+        },
         ready(callback) {
             if (G.Alpine) {
                 callback()
@@ -309,7 +312,7 @@ function setupCore(G) {
             return (name, fallback) => {
                 let comp = findClosestComponent(el)
                 if (!comp) return null
-                return Alpine.bound(comp, name, fallback)
+                return Alpine.bound(comp, `${$vui.config.propPrefix}${name}`, fallback)
             }
         })
 
@@ -577,6 +580,7 @@ ${elScript.innerHTML}
                                             document.body.append(elExecute)
                                             if (!wait) process(i + 1)
                                         } else if (elChild.tagName === 'TEMPLATE') {
+                                            elChild.setAttribute('v-cloak', '')
                                             $vui.extractNamespaces(elChild)
                                             $vui.prepareComponents(elChild)
                                             document.body.append(elChild)
@@ -989,7 +993,7 @@ ${elScript.innerHTML}
             callback(partName ? style.parts[partName] : style, themeName, styleName);
         }
         function getVariantValue(el, variantName) {
-            const attrName = `data-${variantName}`;
+            const attrName = `${$vui.config.propPrefix}${variantName}`;
             let variantValue = bound(el, attrName);
             if (undefined === variantValue && el._x_part && el._x_part.hostElement) {
                 const hostElement = el._x_part.hostElement;
@@ -1116,6 +1120,7 @@ ${elScript.innerHTML}
 
         // Register x-style directive
         directive('style', (el, { expression }, { effect }) => {
+            if (el.tagName === 'TEMPLATE') return
             const styleName = expression;
 
             effect(() => {
@@ -1126,6 +1131,7 @@ ${elScript.innerHTML}
 
         // Register x-part directive
         directive('part', (el, { expression }, { effect }) => {
+            if (el.tagName === 'TEMPLATE') return
             // Get part name
             const partName = expression;
             // Find the nearest x-style element as host node

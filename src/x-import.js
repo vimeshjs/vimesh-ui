@@ -91,6 +91,7 @@ function setupXImport(G) {
                                             document.body.append(elExecute)
                                             if (!wait) process(i + 1)
                                         } else if (elChild.tagName === 'TEMPLATE') {
+                                            elChild.setAttribute('v-cloak', '')
                                             $vui.extractNamespaces(elChild)
                                             $vui.prepareComponents(elChild)
                                             document.body.append(elChild)

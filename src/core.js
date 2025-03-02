@@ -2,7 +2,10 @@ function setupCore(G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
-        config: { debug: false },
+        config: {
+            debug: false,
+            propPrefix: 'data-'
+        },
         ready(callback) {
             if (G.Alpine) {
                 callback()
