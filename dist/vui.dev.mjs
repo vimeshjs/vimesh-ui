@@ -1153,6 +1153,7 @@ ${elScript.innerHTML}
         });
     })
 }
+
 function setupVimeshUI(G = {}) {
     setupCore(G)
     setupXComponent(G)
@@ -1162,4 +1163,13 @@ function setupVimeshUI(G = {}) {
     return G.$vui
 }
 
-setupVimeshUI(window)
+export default setupVimeshUI
+
+export {
+    setupVimeshUI,
+    setupCore,
+    setupXComponent,
+    setupXImport,
+    setupXInclude,
+    setupXStyle
+}

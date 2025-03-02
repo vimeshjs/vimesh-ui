@@ -1162,4 +1162,11 @@ function setupVimeshUI(G = {}) {
     return G.$vui
 }
 
-setupVimeshUI(window)
+module.exports = {
+    setupVimeshUI,
+    setupCore,
+    setupXComponent,
+    setupXImport,
+    setupXInclude,
+    setupXStyle
+}

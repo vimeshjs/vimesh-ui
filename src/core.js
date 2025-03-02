@@ -1,6 +1,4 @@
-"use strict";
-
-(function (G) {
+function setupCore(G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
@@ -70,4 +68,4 @@
             return target
         }
     }
-})(window);
+}
