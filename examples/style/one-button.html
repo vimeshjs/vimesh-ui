@@ -1,0 +1,270 @@
+<head>
+    <script src="https://unpkg.com/@vimesh/style"></script>
+    <!--
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    -->
+
+    <script src="/dist/vui.dev.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+        $vs.reset({
+            aliasColors: {
+                primary: '#4F46E5',
+                secondary: '#6B7280',
+                accent: '#37CDBE',
+                neutral: '#3D4451',
+                info: '#3ABFF8',
+                success: '#36D399',
+                warning: '#FBBD23',
+                error: '#F87272',
+                base: '#eeeeee',
+            },
+            specialColors: {
+                // 内容颜色（文字颜色）
+                'primary-content': '#FFFFFF',
+                'secondary-content': '#FFFFFF',
+                'accent-content': '#FFFFFF',
+                'info-content': '#FFFFFF',
+                'success-content': '#FFFFFF',
+                'warning-content': '#FFFFFF',
+                'error-content': '#FFFFFF',
+                'base-content': '#333333',
+                // 焦点颜色
+                'primary-focus': '#4338CA',
+                'secondary-focus': '#4B5563',
+                'accent-focus': '#2AA79B',
+                'info-focus': '#2AA3D0',
+                'success-focus': '#2BB67E',
+                'warning-focus': '#D9A01F',
+                'error-focus': '#D65B5B',
+            },
+        });
+        $vui.config.importMap = {
+            "*": '../components/${component}.html'
+        }
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        const defaultButtonStyles = {
+            button: {
+                base: 'inline-flex items-center justify-center h-10 min-h-[2.5rem] px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-md border border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                variants: {
+                    type: {
+                        default: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border-neutral-200',
+                        primary: 'bg-primary hover:bg-primary-focus text-primary-content',
+                        secondary: 'bg-secondary hover:bg-secondary-focus text-secondary-content',
+                        accent: 'bg-accent hover:bg-accent-focus text-accent-content',
+                        info: 'bg-info hover:bg-info-focus text-info-content',
+                        success: 'bg-success hover:bg-success-focus text-success-content',
+                        warning: 'bg-warning hover:bg-warning-focus text-warning-content',
+                        error: 'bg-error hover:bg-error-focus text-error-content',
+                        ghost: 'bg-transparent hover:bg-neutral-100 text-current',
+                        link: 'bg-transparent underline text-primary hover:bg-transparent'
+                    },
+                    size: {
+                        xs: 'h-6 min-h-[1.5rem] px-2 text-xs',
+                        sm: 'h-8 min-h-[2rem] px-3 text-xs',
+                        md: 'h-10 min-h-[2.5rem] px-4 text-sm',
+                        lg: 'h-12 min-h-[3rem] px-6 text-base',
+                        wide: 'px-8'
+                    },
+                    shape: {
+                        default: 'rounded-md',
+                        square: 'aspect-square p-0',
+                        circle: 'rounded-full aspect-square p-0',
+                        block: 'w-full'
+                    },
+                    outline: {
+                        true: 'bg-transparent text-black hover:text-white border border-current hover:bg-opacity-50'
+                    },
+                    glass: {
+                        true: 'bg-opacity-30 backdrop-blur-lg border-opacity-40 text-current'
+                    },
+                    loading: {
+                        true: 'pointer-events-none opacity-70 relative before:block before:w-4 before:h-4 before:rounded-full before:border-2 before:border-current before:border-t-transparent before:animate-spin before:absolute before:left-4'
+                    },
+                    disabled: {
+                        true: 'pointer-events-none opacity-50'
+                    },
+                    noAnimation: {
+                        true: 'no-animation'
+                    }
+                },
+                compoundVariants: [
+                    {
+                        conditions: { outline: true, variant: 'primary' },
+                        classes: 'text-primary hover:bg-primary'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'secondary' },
+                        classes: 'text-secondary hover:bg-secondary'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'accent' },
+                        classes: 'text-accent hover:bg-accent'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'info' },
+                        classes: 'text-info hover:bg-info'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'success' },
+                        classes: 'text-success hover:bg-success'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'warning' },
+                        classes: 'text-warning hover:bg-warning'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'error' },
+                        classes: 'text-error hover:bg-error'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'xs' },
+                        classes: 'h-6 w-6'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'sm' },
+                        classes: 'h-8 w-8'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'md' },
+                        classes: 'h-10 w-10'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'lg' },
+                        classes: 'h-12 w-12'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'xs' },
+                        classes: 'h-6 w-6'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'sm' },
+                        classes: 'h-8 w-8'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'md' },
+                        classes: 'h-10 w-10'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'lg' },
+                        classes: 'h-12 w-12'
+                    },
+                    {
+                        conditions: { loading: true, size: 'xs' },
+                        classes: 'pl-8'
+                    },
+                    {
+                        conditions: { loading: true, size: 'sm' },
+                        classes: 'pl-8'
+                    },
+                    {
+                        conditions: { loading: true, size: 'md' },
+                        classes: 'pl-10'
+                    },
+                    {
+                        conditions: { loading: true, size: 'lg' },
+                        classes: 'pl-12'
+                    }
+                ],
+                defaultVariants: {
+                    type: 'default',
+                    size: 'md',
+                    shape: 'default'
+                }
+            },
+
+            buttonGroup: {
+                base: 'inline-flex',
+                variants: {
+                    attached: {
+                        true: 'join [&>*]:join-item',
+                        false: 'flex gap-2'
+                    },
+                    vertical: {
+                        true: 'flex-col [&>*:first-child:not(:last-child)]:rounded-b-none [&>*:last-child:not(:first-child)]:rounded-t-none [&>*:not(:first-child):not(:last-child)]:rounded-none',
+                        false: 'flex-row [&>*:first-child:not(:last-child)]:rounded-r-none [&>*:last-child:not(:first-child)]:rounded-l-none [&>*:not(:first-child):not(:last-child)]:rounded-none'
+                    }
+                },
+                defaultVariants: {
+                    attached: true,
+                    vertical: false
+                }
+            }
+        };
+        const darkButtonStyles = {
+            button: {
+                parent: 'default',
+                variants: {
+                    type: {
+                        default: 'bg-neutral-700 hover:bg-neutral-600 text-neutral-100 border-neutral-600',
+                        ghost: 'bg-transparent hover:bg-neutral-800 text-neutral-100'
+                    }
+                }
+            }
+        };
+        const themes = {
+            default: defaultButtonStyles,
+            dark: darkButtonStyles
+        };
+    </script>
+    <script>
+        window.buttonTestData = () => {
+            return {
+                buttonType: 'primary',
+                buttonSize: 'md',
+                isRounded: false,
+                isDisabled: false,
+                currentTheme: 'default',
+                testButton: {
+                    type: 'primary',
+                    size: 'md',
+                    shape: 'default',
+                    text: '测试按钮',
+                    outline: false,
+                    glass: false,
+                    loading: false,
+                    disabled: false,
+                },
+                init() {
+                    $vui.loadThemes(themes);
+                },
+            };
+        };
+    </script>
+</head>
+
+<body x-cloak x-data class="p-2">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">Button Style Test</h1>
+
+        <div x-data="buttonTestData()">
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">Change Theme</h2>
+                <div class="flex space-x-4">
+                    <button @click="$vui.setTheme('default'); currentTheme = 'default'"
+                        :class="currentTheme === 'default' ? 'bg-blue-500 text-white' : 'bg-gray-200'"
+                        class="px-4 py-2 rounded">
+                        Default
+                    </button>
+                    <button @click="$vui.setTheme('dark'); currentTheme = 'dark'"
+                        :class="currentTheme === 'dark' ? 'bg-blue-500 text-white' : 'bg-gray-200'"
+                        class="px-4 py-2 rounded">
+                        Dark
+                    </button>
+                    <button x-style="button" x-data="{ pressed: false }" @click="pressed = !pressed"
+                        :data-pressed="pressed" class="data-[pressed=true]:scale-[0.5] transition-transform">
+                        Click Me
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

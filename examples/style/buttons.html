@@ -1,0 +1,633 @@
+<head>
+    <script src="https://unpkg.com/@vimesh/style"></script>
+    <!--
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    -->
+
+    <script src="/dist/vui.dev.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+        $vs.reset({
+            debug: true,
+            aliasColors: {
+                primary: '#4F46E5',
+                secondary: '#6B7280',
+                accent: '#37CDBE',
+                neutral: '#3D4451',
+                info: '#3ABFF8',
+                success: '#36D399',
+                warning: '#FBBD23',
+                error: '#F87272',
+                base: '#eeeeee',
+            },
+            specialColors: {
+                // 内容颜色（文字颜色）
+                'primary-content': '#FFFFFF',
+                'secondary-content': '#FFFFFF',
+                'accent-content': '#FFFFFF',
+                'info-content': '#FFFFFF',
+                'success-content': '#FFFFFF',
+                'warning-content': '#FFFFFF',
+                'error-content': '#FFFFFF',
+                'base-content': '#333333',
+                // 焦点颜色
+                'primary-focus': '#4338CA',
+                'secondary-focus': '#4B5563',
+                'accent-focus': '#2AA79B',
+                'info-focus': '#2AA3D0',
+                'success-focus': '#2BB67E',
+                'warning-focus': '#D9A01F',
+                'error-focus': '#D65B5B',
+            },
+        });
+        $vui.config.importMap = {
+            "*": '../components/${component}.html'
+        }
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body x-cloak x-data class="p-2">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">按钮样式测试</h1>
+
+        <div x-data="buttonTestData()">
+            <!-- 主题切换 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">主题切换</h2>
+                <div class="flex space-x-4">
+                    <button @click="$vui.setTheme('default'); currentTheme = 'default'"
+                        :class="currentTheme === 'default' ? 'bg-blue-500 text-white' : 'bg-gray-200'"
+                        class="px-4 py-2 rounded">
+                        默认主题
+                    </button>
+                    <button @click="$vui.setTheme('dark'); currentTheme = 'dark'"
+                        :class="currentTheme === 'dark' ? 'bg-blue-500 text-white' : 'bg-gray-200'"
+                        class="px-4 py-2 rounded">
+                        暗色主题
+                    </button>
+                    <button x-data="{ pressed: false }" @click="pressed = !pressed" :data-pressed="pressed"
+                        class="bg-primary text-white px-4 py-2 rounded-md data-[pressed=true]:scale-[0.5] transition-transform">
+                        点击我
+                    </button>
+                </div>
+            </div>
+
+            <!-- 按钮类型 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">按钮类型</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="default" class="mb-2">默认按钮</button>
+                        <span class="text-sm text-gray-500">default</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="primary" class="mb-2">主要按钮</button>
+                        <span class="text-sm text-gray-500">primary</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="secondary" class="mb-2">次要按钮</button>
+                        <span class="text-sm text-gray-500">secondary</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="accent" class="mb-2">强调按钮</button>
+                        <span class="text-sm text-gray-500">accent</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="info" class="mb-2">信息按钮</button>
+                        <span class="text-sm text-gray-500">info</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="success" class="mb-2">成功按钮</button>
+                        <span class="text-sm text-gray-500">success</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="warning" class="mb-2">警告按钮</button>
+                        <span class="text-sm text-gray-500">warning</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="error" class="mb-2">错误按钮</button>
+                        <span class="text-sm text-gray-500">error</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="ghost" class="mb-2">幽灵按钮</button>
+                        <span class="text-sm text-gray-500">ghost</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="link" class="mb-2">链接按钮</button>
+                        <span class="text-sm text-gray-500">link</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按钮尺寸 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">按钮尺寸</h2>
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-size="xs" class="mb-2">超小按钮</button>
+                        <span class="text-sm text-gray-500">xs</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-size="sm" class="mb-2">小按钮</button>
+                        <span class="text-sm text-gray-500">sm</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-size="md" class="mb-2">中按钮</button>
+                        <span class="text-sm text-gray-500">md (默认)</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-size="lg" class="mb-2">大按钮</button>
+                        <span class="text-sm text-gray-500">lg</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-size="wide" class="mb-2">宽按钮</button>
+                        <span class="text-sm text-gray-500">wide</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按钮形状 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">按钮形状</h2>
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-shape="default" class="mb-2">默认形状</button>
+                        <span class="text-sm text-gray-500">default</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-shape="square" class="mb-2">□</button>
+                        <span class="text-sm text-gray-500">square</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-shape="circle" class="mb-2">○</button>
+                        <span class="text-sm text-gray-500">circle</span>
+                    </div>
+                    <div class="flex flex-col items-center w-full max-w-xs">
+                        <button x-style="button" data-shape="block" class="mb-2">块级按钮</button>
+                        <span class="text-sm text-gray-500">block</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 轮廓按钮 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">轮廓按钮</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="primary" data-outline="true" class="mb-2">主要轮廓</button>
+                        <span class="text-sm text-gray-500">primary + outline</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="secondary" data-outline="true" class="mb-2">次要轮廓</button>
+                        <span class="text-sm text-gray-500">secondary + outline</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="accent" data-outline="true" class="mb-2">强调轮廓</button>
+                        <span class="text-sm text-gray-500">accent + outline</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="success" data-outline="true" class="mb-2">成功轮廓</button>
+                        <span class="text-sm text-gray-500">success + outline</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="error" data-outline="true" class="mb-2">错误轮廓</button>
+                        <span class="text-sm text-gray-500">error + outline</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 玻璃效果 -->
+            <div class="mb-8 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 text-white">玻璃效果按钮</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button x-style="button" data-glass="true">玻璃效果</button>
+                    <button x-style="button" data-type="primary" data-glass="true">主要玻璃</button>
+                    <button x-style="button" data-type="error" data-glass="true">错误玻璃</button>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">加载状态</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button x-style="button" data-loading="true">加载中...</button>
+                    <button x-style="button" data-type="primary" data-loading="true">加载中...</button>
+                    <button x-style="button" data-size="xs" data-loading="true">小</button>
+                    <button x-style="button" data-size="lg" data-loading="true">大</button>
+                </div>
+            </div>
+
+            <!-- 禁用状态 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">禁用状态</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button x-style="button" data-disabled="true">禁用按钮</button>
+                    <button x-style="button" data-type="primary" data-disabled="true">禁用主要</button>
+                    <button x-style="button" data-type="error" data-disabled="true">禁用错误</button>
+                    <button x-style="button" data-outline="true" data-disabled="true">禁用轮廓</button>
+                </div>
+            </div>
+
+            <!-- 按钮组 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">按钮组</h2>
+
+                <h3 class="font-bold mb-2">水平按钮组</h3>
+                <div x-style="buttonGroup" class="mb-4">
+                    <button x-style="button">按钮 1</button>
+                    <button x-style="button">按钮 2</button>
+                    <button x-style="button">按钮 3</button>
+                </div>
+
+                <h3 class="font-bold mb-2">垂直按钮组</h3>
+                <div x-style="buttonGroup" data-vertical="true" class="mb-4">
+                    <button x-style="button">按钮 1</button>
+                    <button x-style="button">按钮 2</button>
+                    <button x-style="button">按钮 3</button>
+                </div>
+
+                <h3 class="font-bold mb-2">分离按钮组</h3>
+                <div x-style="buttonGroup" data-attached="false" class="mb-4">
+                    <button x-style="button" data-type="primary">按钮 1</button>
+                    <button x-style="button" data-type="secondary">按钮 2</button>
+                    <button x-style="button" data-type="accent">按钮 3</button>
+                </div>
+            </div>
+
+            <!-- 组合变体 -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">组合变体</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="primary" data-size="lg" data-shape="circle" class="mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </button>
+                        <span class="text-sm text-gray-500">primary + lg + circle</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="error" data-outline="true" data-size="sm" class="mb-2">
+                            删除
+                        </button>
+                        <span class="text-sm text-gray-500">error + outline + sm</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button x-style="button" data-type="success" data-loading="true" data-size="lg" class="mb-2">
+                            提交中...
+                        </button>
+                        <span class="text-sm text-gray-500">success + loading + lg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交互式测试 -->
+            <div class="p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">交互式测试</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-2">按钮类型</label>
+                                <select x-model="testButton.type" class="w-full p-2 border rounded">
+                                    <option value="default">默认</option>
+                                    <option value="primary">主要</option>
+                                    <option value="secondary">次要</option>
+                                    <option value="accent">强调</option>
+                                    <option value="info">信息</option>
+                                    <option value="success">成功</option>
+                                    <option value="warning">警告</option>
+                                    <option value="error">错误</option>
+                                    <option value="ghost">幽灵</option>
+                                    <option value="link">链接</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-2">尺寸</label>
+                                <select x-model="testButton.size" class="w-full p-2 border rounded">
+                                    <option value="xs">超小</option>
+                                    <option value="sm">小</option>
+                                    <option value="md">中</option>
+                                    <option value="lg">大</option>
+                                    <option value="wide">宽</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-2">形状</label>
+                                <select x-model="testButton.shape" class="w-full p-2 border rounded">
+                                    <option value="default">默认</option>
+                                    <option value="square">方形</option>
+                                    <option value="circle">圆形</option>
+                                    <option value="block">块级</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-2">按钮文本</label>
+                                <input type="text" x-model="testButton.text" class="w-full p-2 border rounded"
+                                    placeholder="按钮文本" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="outline" x-model="testButton.outline" class="mr-2" />
+                                <label for="outline">轮廓按钮</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="glass" x-model="testButton.glass" class="mr-2" />
+                                <label for="glass">玻璃效果</label>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="loading" x-model="testButton.loading" class="mr-2" />
+                                <label for="loading">加载状态</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="disabled" x-model="testButton.disabled" class="mr-2" />
+                                <label for="disabled">禁用状态</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center p-8 border rounded-lg"
+                        :class="testButton.glass ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-white'">
+                        <button x-style="button" :data-type="testButton.type" :data-size="testButton.size"
+                            :data-shape="testButton.shape" :data-outline="testButton.outline"
+                            :data-glass="testButton.glass" :data-loading="testButton.loading"
+                            :data-disabled="testButton.disabled" class="mb-4">
+                            <span x-text="testButton.text || '测试按钮'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按钮API参考 -->
+            <div class="p-4 bg-gray-100 rounded-lg mt-8">
+                <h2 class="text-xl font-bold mb-4">按钮API参考</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b">属性</th>
+                                <th class="py-2 px-4 border-b">可选值</th>
+                                <th class="py-2 px-4 border-b">默认值</th>
+                                <th class="py-2 px-4 border-b">说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-type</td>
+                                <td class="py-2 px-4 border-b">default, primary, secondary, accent, info, success,
+                                    warning,
+                                    error, ghost, link</td>
+                                <td class="py-2 px-4 border-b">default</td>
+                                <td class="py-2 px-4 border-b">按钮类型</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-size</td>
+                                <td class="py-2 px-4 border-b">xs, sm, md, lg, wide</td>
+                                <td class="py-2 px-4 border-b">md</td>
+                                <td class="py-2 px-4 border-b">按钮尺寸</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-shape</td>
+                                <td class="py-2 px-4 border-b">default, square, circle, block</td>
+                                <td class="py-2 px-4 border-b">default</td>
+                                <td class="py-2 px-4 border-b">按钮形状</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-outline</td>
+                                <td class="py-2 px-4 border-b">true, false</td>
+                                <td class="py-2 px-4 border-b">false</td>
+                                <td class="py-2 px-4 border-b">是否为轮廓按钮</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-glass</td>
+                                <td class="py-2 px-4 border-b">true, false</td>
+                                <td class="py-2 px-4 border-b">false</td>
+                                <td class="py-2 px-4 border-b">是否启用玻璃效果</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-loading</td>
+                                <td class="py-2 px-4 border-b">true, false</td>
+                                <td class="py-2 px-4 border-b">false</td>
+                                <td class="py-2 px-4 border-b">是否显示加载状态</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-disabled</td>
+                                <td class="py-2 px-4 border-b">true, false</td>
+                                <td class="py-2 px-4 border-b">false</td>
+                                <td class="py-2 px-4 border-b">是否禁用按钮</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-4 border-b">data-noAnimation</td>
+                                <td class="py-2 px-4 border-b">true, false</td>
+                                <td class="py-2 px-4 border-b">false</td>
+                                <td class="py-2 px-4 border-b">是否禁用动画效果</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultButtonStyles = {
+            button: {
+                base: 'inline-flex items-center justify-center h-10 min-h-[2.5rem] px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-md border border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                variants: {
+                    type: {
+                        default: 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border-neutral-200',
+                        primary: 'bg-primary hover:bg-primary-focus text-primary-content',
+                        secondary: 'bg-secondary hover:bg-secondary-focus text-secondary-content',
+                        accent: 'bg-accent hover:bg-accent-focus text-accent-content',
+                        info: 'bg-info hover:bg-info-focus text-info-content',
+                        success: 'bg-success hover:bg-success-focus text-success-content',
+                        warning: 'bg-warning hover:bg-warning-focus text-warning-content',
+                        error: 'bg-error hover:bg-error-focus text-error-content',
+                        ghost: 'bg-transparent hover:bg-neutral-100 text-current',
+                        link: 'bg-transparent underline text-primary hover:bg-transparent'
+                    },
+                    size: {
+                        xs: 'h-6 min-h-[1.5rem] px-2 text-xs',
+                        sm: 'h-8 min-h-[2rem] px-3 text-xs',
+                        md: 'h-10 min-h-[2.5rem] px-4 text-sm',
+                        lg: 'h-12 min-h-[3rem] px-6 text-base',
+                        wide: 'px-8'
+                    },
+                    shape: {
+                        default: 'rounded-md',
+                        square: 'aspect-square p-0',
+                        circle: 'rounded-full aspect-square p-0',
+                        block: 'w-full'
+                    },
+                    outline: {
+                        true: 'bg-transparent text-black hover:text-white border border-current hover:bg-opacity-50'
+                    },
+                    glass: {
+                        true: 'bg-opacity-30 backdrop-blur-lg border-opacity-40 text-current'
+                    },
+                    loading: {
+                        true: 'pointer-events-none opacity-70 relative before:block before:w-4 before:h-4 before:rounded-full before:border-2 before:border-current before:border-t-transparent before:animate-spin before:absolute before:left-4'
+                    },
+                    disabled: {
+                        true: 'pointer-events-none opacity-50'
+                    },
+                    noAnimation: {
+                        true: 'no-animation'
+                    }
+                },
+                compoundVariants: [
+                    {
+                        conditions: { outline: true, variant: 'primary' },
+                        classes: 'text-primary hover:bg-primary'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'secondary' },
+                        classes: 'text-secondary hover:bg-secondary'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'accent' },
+                        classes: 'text-accent hover:bg-accent'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'info' },
+                        classes: 'text-info hover:bg-info'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'success' },
+                        classes: 'text-success hover:bg-success'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'warning' },
+                        classes: 'text-warning hover:bg-warning'
+                    },
+                    {
+                        conditions: { outline: true, variant: 'error' },
+                        classes: 'text-error hover:bg-error'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'xs' },
+                        classes: 'h-6 w-6'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'sm' },
+                        classes: 'h-8 w-8'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'md' },
+                        classes: 'h-10 w-10'
+                    },
+                    {
+                        conditions: { shape: 'square', size: 'lg' },
+                        classes: 'h-12 w-12'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'xs' },
+                        classes: 'h-6 w-6'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'sm' },
+                        classes: 'h-8 w-8'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'md' },
+                        classes: 'h-10 w-10'
+                    },
+                    {
+                        conditions: { shape: 'circle', size: 'lg' },
+                        classes: 'h-12 w-12'
+                    },
+                    {
+                        conditions: { loading: true, size: 'xs' },
+                        classes: 'pl-8'
+                    },
+                    {
+                        conditions: { loading: true, size: 'sm' },
+                        classes: 'pl-8'
+                    },
+                    {
+                        conditions: { loading: true, size: 'md' },
+                        classes: 'pl-10'
+                    },
+                    {
+                        conditions: { loading: true, size: 'lg' },
+                        classes: 'pl-12'
+                    }
+                ],
+                defaultVariants: {
+                    type: 'default',
+                    size: 'md',
+                    shape: 'default'
+                }
+            },
+
+            buttonGroup: {
+                base: 'inline-flex',
+                variants: {
+                    attached: {
+                        true: 'join [&>*]:join-item',
+                        false: 'flex gap-2'
+                    },
+                    vertical: {
+                        true: 'flex-col [&>*:first-child:not(:last-child)]:rounded-b-none [&>*:last-child:not(:first-child)]:rounded-t-none [&>*:not(:first-child):not(:last-child)]:rounded-none',
+                        false: 'flex-row [&>*:first-child:not(:last-child)]:rounded-r-none [&>*:last-child:not(:first-child)]:rounded-l-none [&>*:not(:first-child):not(:last-child)]:rounded-none'
+                    }
+                },
+                defaultVariants: {
+                    attached: true,
+                    vertical: false
+                }
+            }
+        };
+        const darkButtonStyles = {
+            button: {
+                parent: 'default',
+                variants: {
+                    type: {
+                        default: 'bg-neutral-700 hover:bg-neutral-600 text-neutral-100 border-neutral-600',
+                        ghost: 'bg-transparent hover:bg-neutral-800 text-neutral-100'
+                    }
+                }
+            }
+        };
+        const themes = {
+            default: defaultButtonStyles,
+            dark: darkButtonStyles
+        };
+    </script>
+    <script>
+        window.buttonTestData = () => {
+            return {
+                buttonType: 'primary',
+                buttonSize: 'md',
+                isRounded: false,
+                isDisabled: false,
+                currentTheme: 'default',
+                testButton: {
+                    type: 'primary',
+                    size: 'md',
+                    shape: 'default',
+                    text: '测试按钮',
+                    outline: false,
+                    glass: false,
+                    loading: false,
+                    disabled: false,
+                },
+                init() {
+                    $vui.loadThemes(themes);
+                },
+            };
+        };
+    </script>
+</body>

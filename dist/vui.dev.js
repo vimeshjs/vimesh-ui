@@ -1,4 +1,4 @@
-// Vimesh UI v0.14.0
+// Vimesh UI v0.14.1
 function setupCore(G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 

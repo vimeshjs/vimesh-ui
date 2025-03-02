@@ -1,0 +1,181 @@
+<head>
+    <script src="https://unpkg.com/@vimesh/style"></script>
+    <!--
+    <script src="https://unpkg.com/@vimesh/ui"></script>
+    -->
+
+    <script src="/dist/vui.dev.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+        $vs.reset({
+            aliasColors: {
+                primary: '#4F46E5',
+                secondary: '#6B7280',
+                accent: '#37CDBE',
+                neutral: '#3D4451',
+                info: '#3ABFF8',
+                success: '#36D399',
+                warning: '#FBBD23',
+                error: '#F87272',
+                base: '#eeeeee',
+            },
+            specialColors: {
+                // 内容颜色（文字颜色）
+                'primary-content': '#FFFFFF',
+                'secondary-content': '#FFFFFF',
+                'accent-content': '#FFFFFF',
+                'info-content': '#FFFFFF',
+                'success-content': '#FFFFFF',
+                'warning-content': '#FFFFFF',
+                'error-content': '#FFFFFF',
+                'base-content': '#333333',
+                // 焦点颜色
+                'primary-focus': '#4338CA',
+                'secondary-focus': '#4B5563',
+                'accent-focus': '#2AA79B',
+                'info-focus': '#2AA3D0',
+                'success-focus': '#2BB67E',
+                'warning-focus': '#D9A01F',
+                'error-focus': '#D65B5B',
+            },
+        });
+        $vui.config.importMap = {
+            "*": '../components/${component}.html'
+        }
+    </script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+</head>
+
+<body x-cloak x-data class="p-2">
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">Dropdown Menu Style Test</h1>
+
+        <div x-data="dropdownTestData()">
+            <!-- Basic Dropdown -->
+            <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                <h2 class="text-xl font-bold mb-4">Basic Dropdown</h2>
+                <div class="flex flex-wrap gap-8">
+                    <div x-data="{ open: false }" x-style="dropdown" :data-open="open" data-position="bottom"
+                        @click.away="open = false">
+                        <button x-part="trigger" @click="open = !open"
+                            class="bg-primary text-white px-4 py-2 rounded-md">
+                            Click Dropdown
+                        </button>
+                        <div x-part="content" class="hidden">
+                            <div x-part="item">Menu Item 1</div>
+                            <div x-part="item">Menu Item 2</div>
+                            <div x-part="item">Menu Item 3</div>
+                        </div>
+                    </div>
+
+                    <div x-style="dropdown" data-hover="true">
+                        <button x-part="trigger" class="bg-secondary text-white px-4 py-2 rounded-md">
+                            Hover Dropdown
+                        </button>
+                        <div x-part="content" class="hidden">
+                            <div x-part="item">Menu Item 1</div>
+                            <div x-part="item">Menu Item 2</div>
+                            <div x-part="item">Menu Item 3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const styles = {
+            dropdown: {
+                base: 'relative inline-block',
+                variants: {
+                    position: {
+                        bottom: 'dropdown-bottom',
+                        top: 'dropdown-top',
+                        left: 'dropdown-left',
+                        right: 'dropdown-right',
+                        end: 'dropdown-end'
+                    },
+                    hover: {
+                        true: 'group'
+                    },
+                    open: {
+                        true: 'dropdown-open'
+                    }
+                },
+                defaultVariants: {
+                    position: 'bottom'
+                },
+                // Parts definition
+                parts: {
+                    trigger: {
+                        base: 'inline-flex cursor-pointer'
+                    },
+                    content: {
+                        base: 'dropdown-content absolute z-[999] menu p-2 shadow bg-base-100 rounded-lg w-52 hidden',
+                        variants: {
+                            open: {
+                                true: 'block'
+                            },
+                            hover: {
+                                true: 'group-hover:block'
+                            },
+                            size: {
+                                xs: 'w-32',
+                                sm: 'w-40',
+                                md: 'w-52',
+                                lg: 'w-64',
+                                xl: 'w-80'
+                            },
+                            position: {
+                                bottom: 'left-0 top-full bottom-auto origin-top',
+                                top: 'left-0 bottom-0 top-auto origin-bottom',
+                                left: 'right-0 left-auto top-0 origin-right',
+                                right: 'left-full right-auto top-0 origin-left',
+                                end: 'right-0 left-auto'
+                            }
+                        },
+                        defaultVariants: {
+                            size: 'md'
+                        }
+                    },
+                    item: {
+                        base: 'rounded-lg px-4 py-2 hover:bg-gray-300 cursor-pointer',
+                        variants: {
+                            active: {
+                                true: 'bg-primary text-primary-content hover:bg-primary-focus'
+                            },
+                            disabled: {
+                                true: 'opacity-50 cursor-not-allowed pointer-events-none'
+                            }
+                        }
+                    },
+                    divider: {
+                        base: 'h-px my-2 bg-base-300'
+                    },
+                    header: {
+                        base: 'px-4 py-2 text-sm font-medium text-base-content/70'
+                    }
+                }
+            },
+        }
+    </script>
+
+    <script>
+        window.dropdownTestData = () => {
+            return {
+                currentTheme: 'default',
+                init() {
+                    window.$vui.loadStyles(styles);
+                },
+            };
+        };
+    </script>
+
+</body>
