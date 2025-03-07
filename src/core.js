@@ -3,8 +3,7 @@ function setupCore(G) {
 
     G.$vui = {
         config: {
-            debug: false,
-            propPrefix: 'data-'
+            debug: false
         },
         ready(callback) {
             if (G.Alpine) {

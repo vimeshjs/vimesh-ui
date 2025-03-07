@@ -1,11 +1,10 @@
-// Vimesh UI v0.14.3
+// Vimesh UI v0.15.0
 function setupCore(G) {
     if (G.$vui) return // Vimesh UI core is already loaded
 
     G.$vui = {
         config: {
-            debug: false,
-            propPrefix: 'data-'
+            debug: false
         },
         ready(callback) {
             if (G.Alpine) {
@@ -312,7 +311,7 @@ function setupCore(G) {
             return (name, fallback) => {
                 let comp = findClosestComponent(el)
                 if (!comp) return null
-                return Alpine.bound(comp, `${$vui.config.propPrefix}${name}`, fallback)
+                return Alpine.bound(comp, `${name}`, fallback)
             }
         })
 
@@ -414,8 +413,12 @@ ${elScript.innerHTML}
 
                             const elSlots = elComp.querySelectorAll("slot")
                             _.each(elSlots, elSlot => {
-                                const name = elSlot.getAttribute('name') || ''
-                                elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                                const name = elSlot.getAttribute('name')
+                                let elsToAppend = name ? slotContents[name] : defaultSlotContent
+                                if (!elsToAppend || elsToAppend.length === 0) {
+                                    elsToAppend = Array.from(elSlot.childNodes)
+                                }
+                                elSlot.after(...elsToAppend)
                                 elSlot.remove()
                             })
                             if (unwrap && isComponent(elComp)) return
@@ -742,6 +745,7 @@ ${elScript.innerHTML}
 };function setupXStyle(G) {
     if (!G.$vui) return console.error('Vimesh UI core is not loaded!')
     const $vui = G.$vui
+    $vui.config.styleVariantPrefix = 'data-'
     $vui.ready(() => {
         const { directive, bound, reactive } = G.Alpine
 
@@ -993,7 +997,7 @@ ${elScript.innerHTML}
             callback(partName ? style.parts[partName] : style, themeName, styleName);
         }
         function getVariantValue(el, variantName) {
-            const attrName = `${$vui.config.propPrefix}${variantName}`;
+            const attrName = `${$vui.config.styleVariantPrefix}${variantName}`;
             let variantValue = bound(el, attrName);
             if (undefined === variantValue && el._x_part && el._x_part.hostElement) {
                 const hostElement = el._x_part.hostElement;

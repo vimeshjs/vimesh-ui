@@ -1,6 +1,7 @@
 function setupXStyle(G) {
     if (!G.$vui) return console.error('Vimesh UI core is not loaded!')
     const $vui = G.$vui
+    $vui.config.styleVariantPrefix = 'data-'
     $vui.ready(() => {
         const { directive, bound, reactive } = G.Alpine
 
@@ -252,7 +253,7 @@ function setupXStyle(G) {
             callback(partName ? style.parts[partName] : style, themeName, styleName);
         }
         function getVariantValue(el, variantName) {
-            const attrName = `${$vui.config.propPrefix}${variantName}`;
+            const attrName = `${$vui.config.styleVariantPrefix}${variantName}`;
             let variantValue = bound(el, attrName);
             if (undefined === variantValue && el._x_part && el._x_part.hostElement) {
                 const hostElement = el._x_part.hostElement;

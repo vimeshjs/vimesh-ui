@@ -238,7 +238,7 @@ function setupXComponent(G) {
             return (name, fallback) => {
                 let comp = findClosestComponent(el)
                 if (!comp) return null
-                return Alpine.bound(comp, `${$vui.config.propPrefix}${name}`, fallback)
+                return Alpine.bound(comp, `${name}`, fallback)
             }
         })
 
@@ -340,8 +340,12 @@ ${elScript.innerHTML}
 
                             const elSlots = elComp.querySelectorAll("slot")
                             _.each(elSlots, elSlot => {
-                                const name = elSlot.getAttribute('name') || ''
-                                elSlot.after(...(slotContents[name] ? slotContents[name] : defaultSlotContent))
+                                const name = elSlot.getAttribute('name')
+                                let elsToAppend = name ? slotContents[name] : defaultSlotContent
+                                if (!elsToAppend || elsToAppend.length === 0) {
+                                    elsToAppend = Array.from(elSlot.childNodes)
+                                }
+                                elSlot.after(...elsToAppend)
                                 elSlot.remove()
                             })
                             if (unwrap && isComponent(elComp)) return
