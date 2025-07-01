@@ -1,21 +1,53 @@
-# Why Vimesh UI
+# Vimesh UI
 
-I hate compiling frontend code with complex toolchains, like webpack, rollup, vite etc. Unfortunately, most frontend frameworks heavily depends on them. Alpine.js is clean, powerful and without extra build process. While it is a challenge to develop a UI library directly with Alpine.js. Vimesh UI is an ultra lightweight library to build UI components for Alpine.js.
+[![npm version](https://badge.fury.io/js/@vimesh%2Fui.svg)](https://badge.fury.io/js/@vimesh%2Fui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Basic Usages
+Vimesh UI is an ultra-lightweight component library for Alpine.js that enables building reusable UI components without complex build toolchains like webpack, rollup, or vite. Built on top of Alpine.js, it provides a simple yet powerful way to create custom elements and manage component lifecycle.
 
-Just add Vimesh UI CDN url before Alpine.js
+## Features
+
+- **Zero Build Process**: Works directly in the browser without compilation
+- **Web Components**: Native custom elements with Alpine.js reactivity
+- **Remote Loading**: Import components from local or remote URLs
+- **Slot Support**: Named and default slots for flexible content projection
+- **Component API**: Built-in `$api` and `$prop` magics for component interaction
+- **Auto Import**: Automatically import custom HTML elements
+- **Lightweight**: No runtime dependencies, only development dependencies
+
+## Why Vimesh UI?
+
+Alpine.js is clean, powerful, and requires no build process. However, developing a comprehensive UI component library directly with Alpine.js presents challenges. Vimesh UI solves this by providing:
+
+- A structured way to create reusable components
+- Component encapsulation and lifecycle management
+- Remote component loading capabilities
+- A simple API that feels natural with Alpine.js
+
+## Quick Start
+
+### Installation
+
+Add Vimesh UI before Alpine.js in your HTML:
 
 ```html
 <script src="https://unpkg.com/@vimesh/ui"></script>
 <script src="https://unpkg.com/alpinejs" defer></script>
 ```
 
-Now there are three important Alpine.js directives to build your own UI components
+Or install via npm:
 
-## x-component
+```bash
+npm install @vimesh/ui
+```
 
-This directive creates an HTML native custom element around Alpine.js template.
+### Core Directives
+
+Vimesh UI provides three powerful Alpine.js directives for component development:
+
+### 1. x-component
+
+Creates HTML native custom elements from Alpine.js templates.
 
 ```html
 <head>
@@ -154,9 +186,9 @@ The component tags `myui-greeting` and `new-greeting` will no longer exist in th
 </body>
 ```
 
-## x-import
+### 2. x-import
 
-Of course, we don't want to embed common components in every page. The `x-import` directive helps to load remote components asynchronously. Let's extract the greeting component into a standalone file.
+Loads components asynchronously from local or remote URLs, perfect for creating reusable component libraries.
 
 > /hello-remote.html
 
@@ -368,9 +400,9 @@ Set the `autoImport` config to `true`, Vimesh UI will automatically try to impor
 </body>
 ```
 
-## x-include
+### 3. x-include
 
-Sometimes we just need to load a piece of html. The `x-include` is convenient to use in this case. The `unwrap` modifier is used to remove the host html tag.
+Includes HTML fragments directly into your page. Use the `unwrap` modifier to remove the host element.
 
 > /include-article.html
 
@@ -422,15 +454,17 @@ The final result will be
 
 [Run on codepen](https://codepen.io/vimeshjs/pen/ExRpLbb)
 
-## x-shtml
+### 4. x-shtml
 
-In Vimesh UI, please use x-shtml instead of Alpine.js original x-html, which has wrong behaviors in case of complex component lifecycle.
+A replacement for Alpine.js's `x-html` directive that properly handles component lifecycle in complex scenarios.
 
-# Advanced Usage
+## Advanced Usage
 
-## $api for component
+### Component API (`$api`)
 
-`x-data` is very convenient to use. Its data is accessible to all descendant elements. There is no problems for simple static web page. When developping reusable components, `x-data` is too open to store component own states. We do not want the properties to be modified occasionally just because of name confliction. `$api` allows to define **private** properties and methods. `$api` is only available to current component. At the same time, it inherets from x-data. That means if `this.somePropOrMethod` does not exist in $api, it will check `somePropOrMethod` from x-data. `$api` has some predefined properties and methods:
+While `x-data` is accessible to all descendant elements, `$api` provides **private** properties and methods for component encapsulation. It prevents naming conflicts and provides better component isolation while still inheriting from `x-data` when needed.
+
+#### Predefined Properties and Methods
 
 | Properties | Description                                                                |
 | ---------- | -------------------------------------------------------------------------- |
@@ -444,15 +478,16 @@ In Vimesh UI, please use x-shtml instead of Alpine.js original x-html, which has
 | $find(filter)         | Find all descendant component element according to the filter, which could be component type or a function                                         |
 | $findOne(filter)      | It is similar to $find, but only return the first component element match the filter                                                               |
 
-`x-data` has two lifecycle hooks: init and destroy. `$api` has equivalents:
+#### Lifecycle Hooks
+
 | x-data | $api |
 | ----------- | ----------- |
 | init() | onMounted() |
 | destroy() | onUnmounted() |
 
-## $vui global variable
+### Global API (`$vui`)
 
-Once Vimesh UI is initialized, there is a global variable `$vui` attached to `window`.
+The global `$vui` object provides utilities and configuration options:
 
 | Property/Method                               | Description                                                                                                                            |
 | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -474,18 +509,78 @@ Once Vimesh UI is initialized, there is a global variable `$vui` attached to `wi
 | $vui.focus(element, option)                   | Try to make an html element focused                                                                                                    |
 | $vui.scrollIntoView(element)                  | Try to scroll an html element into view                                                                                                |
 
-## Multi pages application
+## Examples
 
-Check [mpa example](/examples/mpa)
+### Multi-Page Application (MPA)
+Check the [MPA example](/examples/mpa) for traditional multi-page setups.
 
-## Single page application
+### Single-Page Application (SPA)  
+See the [SPA example](/examples/spa/app.html) for dynamic routing and page management.
 
-Check [spa example](/examples/spa/app.html)
+## Ecosystem
 
-## Real UI components
+### Vimesh Headless UI
+[Vimesh Headless UI](https://github.com/vimeshjs/vimesh-headless) provides production-ready components including:
 
-[Vimesh Headless UI](https://github.com/vimeshjs/vimesh-headless) includes some useful components, like Listbox, Combobox, Menu, Dialog, Tabs, Switch etc. It is a good start point for you to develop your own UI library.
+- **Form Controls**: Listbox, Combobox, Switch
+- **Navigation**: Menu, Tabs
+- **Overlays**: Dialog, Modal
+- **And more...**
 
-![](./assets/vimesh002.jpg)
+Perfect starting point for building your own UI component library.
 
-![](./assets/vimesh003.jpg)
+![Vimesh Headless UI Components](./assets/vimesh002.jpg)
+
+![Vimesh UI Component Examples](./assets/vimesh003.jpg)
+
+## Configuration
+
+Configure Vimesh UI through the global `$vui.config` object:
+
+```javascript
+$vui.config = {
+  // Default namespace for components (default: "vui")
+  namespace: "myui",
+  
+  // Import map for component loading
+  importMap: {
+    "*": "./components/${component}.html",
+    "ui": "https://cdn.example.com/ui/${component}.html"
+  },
+  
+  // Auto-import all custom elements (default: false)
+  autoImport: true,
+  
+  // Debug mode (default: false)
+  debug: true
+};
+```
+
+## Browser Support
+
+Vimesh UI works in all modern browsers that support:
+- ES6+ features
+- Custom Elements v1
+- Alpine.js v3+
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`yarn test`)
+5. Build the library (`yarn build`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Links
+
+- **Documentation**: [GitHub Repository](https://github.com/vimeshjs/vimesh-ui)
+- **Examples**: [Live Examples on CodePen](https://codepen.io/collection/vimesh-ui)
+- **Vimesh Headless UI**: [Component Library](https://github.com/vimeshjs/vimesh-headless)
+- **Alpine.js**: [Official Website](https://alpinejs.dev/)
