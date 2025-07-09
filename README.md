@@ -5,6 +5,8 @@
 
 Vimesh UI is an ultra-lightweight component library for Alpine.js that enables building reusable UI components without complex build toolchains like webpack, rollup, or vite. Built on top of Alpine.js, it provides a simple yet powerful way to create custom elements and manage component lifecycle.
 
+**Quality Assured**: With 163 comprehensive tests and 87% code coverage, Vimesh UI ensures reliability and stability across all core features including component creation, remote loading, styling, and complex integration scenarios.
+
 ## Features
 
 - **Zero Build Process**: Works directly in the browser without compilation
@@ -13,7 +15,9 @@ Vimesh UI is an ultra-lightweight component library for Alpine.js that enables b
 - **Slot Support**: Named and default slots for flexible content projection
 - **Component API**: Built-in `$api` and `$prop` magics for component interaction
 - **Auto Import**: Automatically import custom HTML elements
+- **TypeScript Support**: Full type definitions for better IDE experience
 - **Lightweight**: No runtime dependencies, only development dependencies
+- **Well Tested**: 163 tests with 87% code coverage ensuring reliability
 
 ## Why Vimesh UI?
 
@@ -563,16 +567,72 @@ Vimesh UI works in all modern browsers that support:
 - Custom Elements v1
 - Alpine.js v3+
 
+## Development & Testing
+
+Vimesh UI has comprehensive test coverage to ensure reliability and stability.
+
+### Running Tests
+
+```bash
+# Install dependencies
+yarn install
+
+# Run all tests
+yarn test
+
+# Run tests with coverage report
+yarn test:coverage
+
+# Run tests in watch mode during development
+yarn test:watch
+
+# Run tests in CI mode
+yarn test:ci
+```
+
+### Test Coverage
+
+The project maintains high test coverage across all core functionality:
+
+- **163 tests** across 11 test suites
+- **87% statement coverage**
+- **78% branch coverage**  
+- **91% function coverage**
+- **90% line coverage**
+
+### Test Categories
+
+- **Core utilities** - Essential helper functions and configuration
+- **Component system** - x-component directive and custom element creation
+- **Import system** - x-import directive and remote component loading
+- **Include system** - x-include directive and HTML fragment inclusion
+- **Style system** - x-style directive and styling functionality
+- **Slot system** - Named and default slot handling
+- **Alpine.js integration** - Core framework integration
+- **Edge cases** - Error handling and boundary conditions
+- **Integration scenarios** - Complex multi-component workflows
+
+### Building
+
+```bash
+# Build all distribution formats
+yarn build
+
+# Clean distribution files
+yarn clean
+```
+
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Run tests (`yarn test`)
-5. Build the library (`yarn build`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+5. Ensure all tests pass and coverage is maintained
+6. Build the library (`yarn build`)
+7. Commit your changes (`git commit -m 'Add amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
 
 ## License
 

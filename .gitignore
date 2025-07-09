@@ -1,8 +1,11 @@
 *.log
 .DS_Store
-dev/
 ref/
 node_modules/
 yarn.lock
 doc
 __tests__
+coverage/
+.nyc_output/
+tmp/
+dev/

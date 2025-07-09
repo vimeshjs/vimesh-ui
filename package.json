@@ -7,6 +7,7 @@
   "unpkg": "dist/vui.js",
   "main": "dist/vui.mjs",
   "type": "module",
+  "types": "types/index.d.ts",
   "exports": {
     ".": {
       "browser": "./dist/vui.js",
@@ -18,7 +19,10 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "build": "node scripts/build.cjs",
-    "test": "jest test"
+    "test": "jest test",
+    "test:coverage": "jest test --coverage",
+    "test:watch": "jest test --watch",
+    "test:ci": "jest test --coverage --ci --watchAll=false"
   },
   "dependencies": {},
   "devDependencies": {
